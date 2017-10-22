@@ -1,0 +1,10 @@
+{
+  "name": "cardfight",
+  "version": "0.0.1",
+  "description": "A simple online card game",
+  "dependencies": {
+    "express": "^4.16.2",
+    "socket.io": "^2.0.3",
+    "winston": "^2.4.0"
+  }
+}

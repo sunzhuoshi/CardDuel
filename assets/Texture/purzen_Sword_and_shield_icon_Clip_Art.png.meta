@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "b452b5ab-a927-4860-8cf8-d720e99820f2",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "purzen_Sword_and_shield_icon_Clip_Art": {
+      "ver": "1.0.3",
+      "uuid": "33c26400-ec2d-4af7-a8c2-31301138ebb1",
+      "rawTextureUuid": "b452b5ab-a927-4860-8cf8-d720e99820f2",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 470,
+      "height": 600,
+      "rawWidth": 470,
+      "rawHeight": 600,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

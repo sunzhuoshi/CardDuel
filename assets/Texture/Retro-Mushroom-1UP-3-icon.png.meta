@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "3ca52d0d-4248-469a-9d1a-b0171fa1aa81",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "Retro-Mushroom-1UP-3-icon": {
+      "ver": "1.0.3",
+      "uuid": "21f40530-bbae-433b-9554-fdfa6175cd73",
+      "rawTextureUuid": "3ca52d0d-4248-469a-9d1a-b0171fa1aa81",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 128,
+      "height": 128,
+      "rawWidth": 128,
+      "rawHeight": 128,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

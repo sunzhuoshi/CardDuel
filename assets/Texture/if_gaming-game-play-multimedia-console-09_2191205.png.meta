@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "5a34a43a-6770-4d70-afb8-aab91a14001c",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "if_gaming-game-play-multimedia-console-09_2191205": {
+      "ver": "1.0.3",
+      "uuid": "17319b27-b03c-4a7c-8cb6-cc9a9440258e",
+      "rawTextureUuid": "5a34a43a-6770-4d70-afb8-aab91a14001c",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 11,
+      "trimY": 13,
+      "width": 106,
+      "height": 102,
+      "rawWidth": 128,
+      "rawHeight": 128,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

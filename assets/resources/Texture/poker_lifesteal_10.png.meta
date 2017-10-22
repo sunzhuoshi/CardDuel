@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "f22a8573-1dba-4251-a13b-12eeb5d17d7d",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "poker_lifesteal_10": {
+      "ver": "1.0.3",
+      "uuid": "b423236c-be70-4b59-bb5f-9d5f742c8edf",
+      "rawTextureUuid": "f22a8573-1dba-4251-a13b-12eeb5d17d7d",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0.5,
+      "offsetY": -0.5,
+      "trimX": 1,
+      "trimY": 1,
+      "width": 124,
+      "height": 180,
+      "rawWidth": 125,
+      "rawHeight": 181,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}
