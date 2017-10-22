@@ -91,7 +91,9 @@ cc.Class({
         this.addSocketEventListener(OpCodes.GAME_CARD_VERSUS, this.onGameCardVersusNotification.bind(this));
         this.addSocketEventListener(OpCodes.GAME_ROUND, this.onGameRoundNotification.bind(this));     
         this.addSocketEventListener(OpCodes.PLAYER_TAKE_DAMAGE, this.onPlayerTakeDamageNotification.bind(this));                                                                   
-        this.addSocketEventListener(OpCodes.GAME_END, this.onGameEndNotification.bind(this));                                                                           
+        this.addSocketEventListener(OpCodes.GAME_END, this.onGameEndNotification.bind(this));   
+        this._qrcode = null;    
+        this._qrcodeDiv = null;                                                                    
     },
 
     // use this for initialization
@@ -105,6 +107,7 @@ cc.Class({
 
     onDestroy: function() {
         this._super();
+        client.hideQRcode();        
     },
 
     _updateUIInRoom: function(roomData) {
@@ -120,10 +123,15 @@ cc.Class({
                 this.selfAvatarPrefab.updateUI(client.getSelfPlayerData(roomData));                                   
                 if (roomData.state === RoomState.STATE_WAITING) {
                     this.oppAvatarPrefab.node.active = false;
+                    client.showQRcode();
                 }
                 else if (roomData.state === RoomState.STATE_FULL) {
+                    client.hideQRcode();
                     this.oppAvatarPrefab.node.active = true;
                     this.oppAvatarPrefab.updateUI(client.getOppPlayerData(roomData));
+                    if (this._qrcode) {
+                        this._qrcode.display = 'none';
+                    }
                 }
 
                 this.selfCardsPrefab.node.active = false;

@@ -146,7 +146,45 @@
                     }
                 }
             });
+        },
+
+        this.hideQRcode = function() {
+            if (this._qrcodeDiv) {
+                this._qrcodeDiv.style.display = 'none';
+            }            
         }
+
+        this.showQRcode = function() {
+            if (cc.sys.isBrowser) {
+                if (!this._qrcodeDiv && !this._qrcode) {
+                    var div = document.getElementById('qrcode');
+                    var QRCODE_SIZE = 192;
+                    if (!div) {
+                        div = document.createElement('DIV');
+                        div.id = 'qrcode';
+                        div.style.position = 'absolute';
+                        div.style.left = '50%';
+                        div.style.top = '40%';
+                        div.style.margin = ('-' + QRCODE_SIZE / 2 + ' -' + QRCODE_SIZE / 2);
+                        document.getElementById('GameDiv').appendChild(div);
+                    }
+                    this._qrcodeDiv = div;
+                    this._qrcode = new QRCode(div, {
+                        text: (window.location.origin + '?cmd=join_room&rid=' + client.roomData.id),
+                        width: QRCODE_SIZE,
+                        height: QRCODE_SIZE,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H                
+                    });
+                }
+                else if (this._qrcode) {
+                    this._qrcode.clear();
+                    this._qrcode.makeCode(window.location.origin + '?cmd=join_room&rid=' + client.roomData.id);
+                    this._qrcodeDiv.style.display = 'block';                    
+                }
+            }
+        }            
     }
     inherits(Client, EventEmitter);
     window.client = new Client();
