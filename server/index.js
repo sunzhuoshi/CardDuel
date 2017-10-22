@@ -53,7 +53,7 @@ io.on('connection', function(socket) {
 		});
 	});
 	socket.on(OpCodes.LOGIN, function(userID) {
-		if (!userID) {
+		if (!userID || PlayerSessionManager.instance.findSession(userID)) {
 			userID = ++userIDSequence;
 			g.logger.info('generated user id: %d', userID);
 		}

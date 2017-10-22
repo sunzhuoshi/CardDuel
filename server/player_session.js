@@ -314,6 +314,12 @@ function PlayerSessionManager() {
     }
 }
 
+PlayerSessionManager.prototype.findSession = function(userID) {
+    return this.sessionList.find((session) => {
+        return session.userID === userID;
+    });
+}
+
 new PlayerSessionManager();
 
 
