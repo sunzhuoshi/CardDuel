@@ -6,6 +6,8 @@ var EventEmitterWithTimer = function() {
     this._timers = {};
 };
 
+util.inherits(EventEmitterWithTimer, events.EventEmitter);
+
 EventEmitterWithTimer.prototype.setTimeout = function(timerName, func, ms) {
     this.clearTimeout(timerName);
     this._timers[timerName] = setTimeout(func, ms);    
@@ -24,8 +26,6 @@ EventEmitterWithTimer.prototype.clearAllTimeouts = function() {
         this.clearTimeout(name);
     }
 };
-
-util.inherits(EventEmitterWithTimer, events.EventEmitter);
 
 module.exports = {
     EventEmitterWithTimer: EventEmitterWithTimer,
