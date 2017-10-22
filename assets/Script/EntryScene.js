@@ -14,10 +14,16 @@ cc.Class({
             default: null,
             type: cc.Button
         },
+
         hostGameButton: {
             default: null,
             type: cc.Button
         },
+
+        versionLabel: {
+            default: null,
+            type: cc.Label
+        }
     },
 
     // use this for initialization
@@ -27,6 +33,7 @@ cc.Class({
         cc.director.preloadScene('GameScene');  // load game scene to save time to transit
         this.quickMatchButton.node.on('click', this.onQuickMatchButtonClick, this);
         this.hostGameButton.node.on('click', this.onHostGameButtonClick, this);
+        this.versionLabel.string = client.version;
     },
 
     onDestroy: function() {

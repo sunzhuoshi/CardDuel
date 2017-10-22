@@ -20,6 +20,7 @@
     function Client() {
         EventEmitter.call(this);
         this.dev = true;
+        this.version = 'v0.1';
         this.server = '';
         this.cmd = '';
         this.roomID = 0;
