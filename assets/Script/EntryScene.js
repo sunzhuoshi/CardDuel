@@ -4,11 +4,9 @@ cc.Class({
     extends: BaseScene,
 
     ctor: function() {
-        this.socketEventListeners = [
-            [OpCodes.CREATE_ROOM, this.onCreateRoomResponse.bind(this)],
-            [OpCodes.JOIN_ROOM, this.onJoinRoomResponse.bind(this)],
-            [OpCodes.QUICK_MATCH, this.onQuickMatchResponse.bind(this)],
-        ]
+        this.addSocketEventListener(OpCodes.CREATE_ROOM, this.onCreateRoomResponse.bind(this));
+        this.addSocketEventListener(OpCodes.JOIN_ROOM, this.onJoinRoomResponse.bind(this));
+        this.addSocketEventListener(OpCodes.QUICK_MATCH, this.onQuickMatchResponse.bind(this));
     },
 
     properties: {
@@ -19,7 +17,7 @@ cc.Class({
         hostGameButton: {
             default: null,
             type: cc.Button
-        }
+        },
     },
 
     // use this for initialization
@@ -45,7 +43,7 @@ cc.Class({
 
     onCreateRoomResponse: function(result, roomIdOrMsg) {
         if (!result) {
-            // TODO: show error message
+            this.messagePrefab.showMessage(roomIdOrMsg);
         }
     },
 
@@ -54,17 +52,13 @@ cc.Class({
             cc.director.loadScene('GameScene');            
         }
         else {
-            // TODO: show error message
+            this.messagePrefab.showMessage(roomIdOrMsg);            
         }
     },
 
     onQuickMatchResponse: function(result, roomIdOrMsg) {
-        if (result) {
-
-        }
-        else {
-            console.log('quick match result: %s, reason: %s', result, roomIdOrMsg);
-            // TODO: show error message
+        if (!result) {
+            this.messagePrefab.showMessage(roomIdOrMsg, 1);
         }
     }
 

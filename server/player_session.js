@@ -9,15 +9,18 @@ var common = require('./common.js');
 var OpCodes = common.OpCodes;
 var PlayerState = require('./common.js').PlayerState;
 var CardTemplateManager = require('./card.js').CardTemplateManager;
+var base = require('./base.js');
 
 function PlayerSession(sessionManager, userID, socket) {
-    events.EventEmitter.call(this);    
+    base.EventEmitterWithTimer.call(this);    
     this.sessionManager = sessionManager;
     this.userID = userID;
     this.socket = socket;
     this.state = PlayerState.STATE_IDLE;
 
     this.room = null;
+
+    this.game = null;
 
     this.roomData = {
         ready: false
@@ -40,12 +43,16 @@ function PlayerSession(sessionManager, userID, socket) {
     this.gameData = {
         hp: config.PLAYER_MAX_HP,
         first: false,
-        currentCardTemplateID: 0,
+        currentCardTemplateID: '',
         cardList: [],
+        setToEnd: function() {
+            this.first = false;
+            this.currentCardTemplateID = '';
+        },
         reset: function() {
             this.hp = config.Settings.PLAYER_INIT_HP;
             this.first = false;
-            this.currentCardTemplateID = 0;
+            this.currentCardTemplateID = '';
             this.cardList = [];
             config.PlayerCardDefineList.forEach((cardDefine) => {
                 let templateID = cardDefine[0];
@@ -171,7 +178,7 @@ function PlayerSession(sessionManager, userID, socket) {
             this.socket.emit(OpCodes.PLAYER_CHANGE_READY, true, this.roomData.ready);         
             if (oldReady !== this.roomData.ready) {
                 this.emit('ready changed', this);
-            }    
+            }
         }
     }.bind(this);
 
@@ -184,6 +191,7 @@ function PlayerSession(sessionManager, userID, socket) {
                     this.roomData.ready = false;
                     break;
                 case PlayerState.STATE_DISCONNECTED: 
+                    this.clearAllTimeouts();                
                     g.logger.info('u[%d] session disconnected', this.userID);
                     this.socket.disconnect(true);
                     this.socket = null;
@@ -209,7 +217,8 @@ function PlayerSession(sessionManager, userID, socket) {
             }
         }
         g.logger.debug('u[%d] take damage: %d, hp: %d', this.userID, damage, this.gameData.hp);
-        this.socket.emit(OpCodes.PLAYER_TAKE_DAMAGE, damage, this.gameData.hp);
+        this.game.emitInGame(OpCodes.PLAYER_TAKE_DAMAGE, this.userID, damage, this.gameData.hp);
+        return this.gameData.hp > 0;
     };
 
     this.heal = function(hp) {
@@ -229,10 +238,10 @@ function PlayerSession(sessionManager, userID, socket) {
     this._pickCard = function(cardIndex) {
         this.gameData.currentCardTemplateID = this.gameData.cardList[cardIndex];
         this.gameData.cardList.splice(cardIndex, 1);
+        this.socket.emit(OpCodes.PLAYER_PICK_CARD, true, cardIndex, this.gameData.currentCardTemplateID);
         this.emit('pick card', this.gameData.currentCardTemplateID);
     };
 
-    this._playerPickCardTimer = null;
     this._playerPickCardTimeout = function() {
         var cardIndex = (Math.floor(Math.random() * this.gameData.cardList.length));
         this._pickCard(cardIndex);
@@ -240,10 +249,7 @@ function PlayerSession(sessionManager, userID, socket) {
 
     this.onPlayerPickCard = function(cardIndex) {
         if (this._checkIfOpAllowed(OpCodes.PLAYER_PICK_CARD, PlayerState.STATE_GAME)) {
-            if (this._playerPickCardTimer) {
-                clearTimeout(this._playerPickCardTimer);
-                this._playerPickCardTimer = null;
-            }
+            this.clearTimeout('player_pick_card');
             if (this.gameData.currentCardTemplateID) {
                 this.socket.emit(OpCodes.PLAYER_PICK_CARD, false, 'Card already picked');
             }
@@ -254,8 +260,8 @@ function PlayerSession(sessionManager, userID, socket) {
     }.bind(this);
 
     this.startTurn = function(pickCardCallback) {
-        this.gameData.currentCardTemplateID = null;
-        this._playerPickCardTimer = setTimeout(this._playerPickCardTimeout, config.Settings.PLAYER_PICK_CARD_TIMEOUT);         
+        this.gameData.currentCardTemplateID = '';
+        this.setTimeout('player_pick_card', this._playerPickCardTimeout, config.Settings.PLAYER_PICK_CARD_TIMEOUT);         
         this.socket.emit(OpCodes.PLAYER_TURN);  
     };
     //>
@@ -280,7 +286,7 @@ function PlayerSession(sessionManager, userID, socket) {
     this._setup();
 }
 
-util.inherits(PlayerSession, events.EventEmitter);
+util.inherits(PlayerSession, base.EventEmitterWithTimer);
 
 function PlayerSessionManager() {
     PlayerSessionManager.instance = this;
@@ -291,18 +297,18 @@ function PlayerSessionManager() {
         });
         if (session) {
             callback.call(null, false, 'Login failure, only one session allowed');
-            //socket.emit(OpCodes.LOGIN, false, 'Login failure, only one session allowed');                
         }
         else {
             session = new PlayerSession(this, userID, socket);
             this.sessionList.push(session);
             callback.call(null, true, session);
-            //socket.emit(OpCodes.LOGIN, true, session.userID, session.state);
         }
     };
     this.removeSession = (session) => {
+        g.logger.debug('removing session, user id: %d', session.userID);
         var index = this.sessionList.indexOf(session);
         if (0 <= index) {
+            g.logger.debug('removed session, user id: %d', session.userID);
             this.sessionList.splice(index, 1);
         }
     }

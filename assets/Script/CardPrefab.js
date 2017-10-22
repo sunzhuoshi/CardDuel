@@ -9,7 +9,11 @@ cc.Class({
         this._cardTemplateID = '';
     },
 
-    setCardTemplateID: function(cardTemplateID) {
+    showBack: function() {
+        this.showCardTemplateID('UK');
+    },
+
+    showCardTemplateID: function(cardTemplateID) {
         var url = '';
         var type = cardTemplateID.substr(0, 2);
         var nameMap = {
@@ -30,12 +34,12 @@ cc.Class({
             }
             url = 'resources/Texture/poker' + typePart + valuePart + '.png';
             this.node.getComponent(cc.Sprite).spriteFrame = new cc.SpriteFrame(cc.url.raw(url));
+            this.node.active = true;            
         }
     },
 
     // use this for initialization
     onLoad: function () {
-        //this.setCardTemplateID('AT9');
     },
 
     // called every frame, uncomment this function to activate update callback

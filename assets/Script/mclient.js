@@ -134,12 +134,14 @@
             }
             this.socket.emit(OpCodes.LOGIN, this.userID);
             this.socket.on(OpCodes.LOGIN, function(result, userIdOrMsg, playerState) {
-                console.log('login, result: %s, userIdOrMsg: %s, playerState: %s', result, userIdOrMsg, playerState);
                 if (result) {
                     window.localStorage.setItem('cd_user_id', userIdOrMsg);
                     // deal with server restart when we're in game scene
                     if (playerState === PlayerState.STATE_IDLE) {
                         cc.director.loadScene('EntryScene');
+                    }
+                    else if (playerState === PlayerState.STATE_ROOM) {
+                        cc.director.loadScene('GameScene');
                     }
                 }
             });

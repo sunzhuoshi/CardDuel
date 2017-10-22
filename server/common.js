@@ -14,13 +14,13 @@ var OpCodes = {
 	PLAYER_TURN: 			'player_turn', 				// s => c: ;
 	GAME_DATA_FIRST:		'game_data_first',			// s => c: [{playerID, first}]
 	PLAYER_PICK_CARD: 		'player_pick_card',			// c => s: cardIndex; s => c: cardIndex, cardClassID,
-	GAME_DATA_PICKED:		'game_data_picked',			// s => c: [{playerID, picked}]
-	GAME_CARD_VERSUS:		'game_card_versus',			// s => c: firstCardTemplateID, secondCardTemplateID, firstUserID, secondUserID
-	PLAYER_TAKE_DAMAGE: 	'player_tack_damage',		// s => c: damage
+	GAME_DATA_PICKED:		'game_data_picked',			// s => c: [{playerID, picked, cardCount}]
+	GAME_CARD_VERSUS:		'game_card_versus',			// s => c: [{playerID, cardTemplateID}](0 is first)
+	PLAYER_TAKE_DAMAGE: 	'player_take_damage',		// s => c: damage
 	PLAYER_HEAL: 			'player_heal',				// s => c: heal
 	PLAYER_QUIT: 			'player_quit', 				// not used
 	PLAYER_DISCONNECT: 		'player_disconnect',		// s => c: userID	
-	GAME_END: 				'game_end'					// not used
+	GAME_END: 				'game_end'					// s => c: playerID
 };
 
 var PlayerState = {

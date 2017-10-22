@@ -13,6 +13,11 @@ cc.Class({
         }
     },
 
+    showRoomID: function(roomID) {
+        this.node.active = true;
+        this.valueLabel.string = roomID;
+    },
+
     // use this for initialization
     onLoad: function () {
 

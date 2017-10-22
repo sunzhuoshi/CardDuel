@@ -1,6 +1,7 @@
 var AvatarPrefab = require('AvatarPrefab');
 var RoomInfoPrefab = require('RoomInfoPrefab');
 var RoundInfoPrefab = require('RoundInfoPrefab');
+var CardPrefab = require('CardPrefab');
 var CardsPrefab = require('CardsPrefab');
 var GameStartCountdownPrefab = require('GameStartCountdownPrefab');
 
@@ -65,29 +66,32 @@ cc.Class({
             type: GameStartCountdownPrefab
         },
 
-        oppPickedCardSprite: {
+        oppPickedCardPrefab: {
             default: null,
-            type: cc.Sprite
+            type: CardPrefab
         },
 
-        selfPickedCardSprite: {
+        gameResultLabel: {
             default: null,
-            type: cc.Sprite
+            type: cc.Label
         }
     },
 
     ctor: function() {
-        this.socketEventListeners = [
-            [OpCodes.ROOM_DATA, this.onRoomDataResponse.bind(this)],
-            [OpCodes.LEAVE_ROOM, this.onLeaveRoomResponse.bind(this)],
-            [OpCodes.PLAYER_CHANGE_READY, this.onPlayerChangeReadyResponse.bind(this)],
-            [OpCodes.GAME_WILL_START, this.onGameWillStartNotification.bind(this)],
-            [OpCodes.GAME_START, this.onGameStartNotification.bind(this)],
-            [OpCodes.GAME_DATA, this.onGameDataNotification.bind(this)],
-            [OpCodes.PLAYER_TURN, this.onPlayerTurnNotification.bind(this)],
-            [OpCodes.GAME_DATA_FIRST, this.onGameDataFirstNotification.bind(this)],
-            [OpCodes.GAME_DATA_PICKED, this.onGameDataPickedNotification.bind(this)],
-        ];
+        this.addSocketEventListener(OpCodes.ROOM_DATA, this.onRoomDataResponse.bind(this));
+        this.addSocketEventListener(OpCodes.LEAVE_ROOM, this.onLeaveRoomResponse.bind(this));
+        this.addSocketEventListener(OpCodes.PLAYER_CHANGE_READY, this.onPlayerChangeReadyResponse.bind(this));
+        this.addSocketEventListener(OpCodes.GAME_WILL_START, this.onGameWillStartNotification.bind(this));
+        this.addSocketEventListener(OpCodes.GAME_START, this.onGameStartNotification.bind(this));
+        this.addSocketEventListener(OpCodes.GAME_DATA, this.onGameDataNotification.bind(this));
+        this.addSocketEventListener(OpCodes.PLAYER_TURN, this.onPlayerTurnNotification.bind(this));
+        this.addSocketEventListener(OpCodes.PLAYER_PICK_CARD, this.onPlayerPickCardResponse.bind(this));
+        this.addSocketEventListener(OpCodes.GAME_DATA_FIRST, this.onGameDataFirstNotification.bind(this));
+        this.addSocketEventListener(OpCodes.GAME_DATA_PICKED, this.onGameDataPickedNotification.bind(this));
+        this.addSocketEventListener(OpCodes.GAME_CARD_VERSUS, this.onGameCardVersusNotification.bind(this));
+        this.addSocketEventListener(OpCodes.GAME_ROUND, this.onGameRoundNotification.bind(this));     
+        this.addSocketEventListener(OpCodes.PLAYER_TAKE_DAMAGE, this.onPlayerTakeDamageNotification.bind(this));                                                                   
+        this.addSocketEventListener(OpCodes.GAME_END, this.onGameEndNotification.bind(this));                                                                           
     },
 
     // use this for initialization
@@ -129,7 +133,8 @@ cc.Class({
                 this.oppFirstLabel.node.active = false;
 
                 this.roundInfoPrefab.node.active = false;
-                this.roomInfoPrefab.valueLabel.string = roomData.id;
+
+                this.roomInfoPrefab.showRoomID(roomData.id);
             }
         }
     },
@@ -143,15 +148,27 @@ cc.Class({
             if (player.id === client.userID) {
                 avatarPrefab = this.selfAvatarPrefab;
                 cardsPrefab = this.selfCardsPrefab;
+                this.selfFirstLabel.node.active = player.data.first;
+            }
+            else {
+                this.oppFirstLabel.node.active = player.data.first;
             }
             avatarPrefab.updateUI(player);
             cardsPrefab.updateUI(player.data.cardList);
         });
-        this.roundInfoPrefab.valueLabel.string = gameData.round;
+        this.roundInfoPrefab.showRound(gameData.round);
+        this.roundInfoPrefab.node.active = true;
+        this.oppPickedCardPrefab.node.active = false;
     },
 
     onPlayerTurnNotification: function() {
-        console.log('onPlayerTurnNotification');
+        this.selfCardsPrefab.locked = false;
+    },
+
+    onPlayerPickCardResponse: function(result, cardIndex, cardTemplateID) {
+        if (!result) {
+            // TODO: move the picked card back
+        }
     },
 
     onGameDataNotification: function(gameData) {
@@ -160,19 +177,23 @@ cc.Class({
 
     onGameDataFirstNotification: function(gameFirstData) {
         gameFirstData.forEach((el) => {
-            if (el.id === this.userID) {
+            if (el.id === client.userID) {
                 this.selfFirstLabel.node.active = el.first;
             }
             else {
                 this.oppFirstLabel.node.active = el.first;
             }
         });
+        this.selfCardsPrefab.locked = false;
     },
 
     onGameDataPickedNotification: function(gamePickedData) {
         gamePickedData.forEach((el) => {
-            if (el.id !== this.userID) {
-                //this.oppPickedCardPrefeb
+            if (el.id !== client.userID) {
+                if (el.picked) {
+                    this.oppPickedCardPrefab.showBack();
+                    this.oppCardsPrefab.updateUI(el.cardCount);                    
+                }
             }
         });
     },
@@ -204,6 +225,55 @@ cc.Class({
     },
 
     onGameStartNotification: function() {
+    },
+
+    onGameCardVersusNotification: function(dataList) {
+        dataList.forEach((data) => {
+            if (data.userID !== client.userID) {
+                this.oppPickedCardPrefab.showCardTemplateID(data.cardTemplateID);
+            }
+        });
+    },
+
+    onGameRoundNotification: function(round) {
+        this.roundInfoPrefab.valueLabel.string = round;
+    },
+
+    onPlayerTakeDamageNotification: function(userID, damage, hp) {
+        if (damage < 0) {
+            damage = 0;
+        }
+        if (userID === client.userID) {
+            this.selfAvatarPrefab.updateHP(hp, -damage);
+        }
+        else {
+            this.oppAvatarPrefab.updateHP(hp, -damage);
+        }
+    },
+
+    onPlayerHealNotification: function(userID, heal, hp) {
+        if (heal < 0) {
+            heal = 0;
+        }
+
+        if (userID === client.userID) {
+            this.selfAvatarPrefab.updateHP(hp, heal);
+        }
+        else {
+            this.oppAvatarPrefab.updateHP(hp, heal);
+        }
+    },
+
+    onGameEndNotification: function(winnerUserID) {
+        if (0 === winnerUserID) {
+            this.messagePrefab.showMessage('DRAW GAME', 1, 64);           
+        }
+        else if (winnerUserID === client.userID) {
+            this.messagePrefab.showMessage('YOU WIN!', 1, 64);                       
+        }
+        else {
+            this.messagePrefab.showMessage('YOU LOSE...', 1, 64);           
+        }
     },
 
     onGetReadyButtonClick: function() {

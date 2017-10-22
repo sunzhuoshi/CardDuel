@@ -9,18 +9,18 @@ var OpCodes = {
 	GAME_WILL_START:		'game_will_start',			// s => c: delay
 	GAME_START: 			'game_start',				// s => c: ; 
 	PLAYER_GAME_DATA: 		'player_game_data',			// s => c: hp, cards	// not used
-	GAME_DATA:				'game_data',				// s => c: roomID, round, [{playerID, playerHP, playerCards}]
+	GAME_DATA:				'game_data',				// s => c: {roomID, round, [{playerID, playerHP, playerCards}]}
 	GAME_ROUND: 			'game_round',				// s => c: round
 	PLAYER_TURN: 			'player_turn', 				// s => c: ;
 	GAME_DATA_FIRST:		'game_data_first',			// s => c: [{playerID, first}]
 	PLAYER_PICK_CARD: 		'player_pick_card',			// c => s: cardIndex; s => c: cardIndex, cardClassID,
-	GAME_DATA_PICKED:		'game_data_picked',			// s => c: [{playerID, picked}]
-	GAME_CARD_VERSUS:		'game_card_versus',			// s => c: firstCardTemplateID, secondCardTemplateID, firstUserID, secondUserID
-	PLAYER_TAKE_DAMAGE: 	'player_tack_damage',		// s => c: damage
+	GAME_DATA_PICKED:		'game_data_picked',			// s => c: [{playerID, picked, cardCount}]
+	GAME_CARD_VERSUS:		'game_card_versus',			// s => c: [{playerID, cardTemplateID}](0 is first)
+	PLAYER_TAKE_DAMAGE: 	'player_take_damage',		// s => c: damage
 	PLAYER_HEAL: 			'player_heal',				// s => c: heal
 	PLAYER_QUIT: 			'player_quit', 				// not used
 	PLAYER_DISCONNECT: 		'player_disconnect',		// s => c: userID	
-	GAME_END: 				'game_end'					// not used
+	GAME_END: 				'game_end'					// s => c: playerID
 };
 
 var PlayerState = {

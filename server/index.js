@@ -10,7 +10,7 @@ var PlayerSessionManager = require('./player_session.js').PlayerSessionManager;
 
 g.io = io;
 
-var userIDSequence = 1000;
+var userIDSequence = 1;
 
 var UriMap = {
 	'/': '/index.html',
@@ -50,7 +50,7 @@ io.on('connection', function(socket) {
 		socket.removeAllListeners();
 		socket.on('reconnect', () => {
 			g.logger.debug('socket reconnect, id: %s', socket.id);
-		});		
+		});
 	});
 	socket.on(OpCodes.LOGIN, function(userID) {
 		if (!userID) {

@@ -91,7 +91,7 @@ function Room() {
     }.bind(this);
 
     this.onPlayerReadyChanged = function() {
-        this.broadcastSyncData();        
+        this.broadcastSyncData();
         var readyCount = 0;
         this.sessions.forEach((session) => {
             if (session.roomData.ready) {
@@ -113,7 +113,7 @@ function Room() {
         }
     }.bind(this);
 
-    this.onExitState = function(state) {
+    this.onExitState = function() {
         switch (this.state) {
             case RoomState.STATE_PLAYING:
                 this._game.end();
@@ -121,7 +121,7 @@ function Room() {
         }          
     };
 
-    this.onEnterState = function(state) {
+    this.onEnterState = function() {
         this._gameStartTimer = null;
         switch (this.state) {
             case RoomState.STATE_PLAYING:
@@ -133,12 +133,14 @@ function Room() {
             case RoomState.STATE_WAITING:
                 this.sessions.forEach((session) => {
                     session.changeState(PlayerState.STATE_ROOM);
-                });                
-                break;            
+                });
+                this.broadcastSyncData();                
+                break;     
             case RoomState.STATE_FULL:
                 this.sessions.forEach((session) => {
                     session.changeState(PlayerState.STATE_ROOM);
-                });            
+                });
+                this.broadcastSyncData();
                 break;
             default:
                 break;
@@ -147,9 +149,9 @@ function Room() {
 
     this.changeState = function(state) {
         if (this.state != state) {
-            this.onExitState(this.state);
+            this.onExitState();
             this.state = state;
-            this.onEnterState(state); 
+            this.onEnterState(); 
         }
     };
 

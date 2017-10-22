@@ -36,21 +36,15 @@ cc.Class({
         locked: {
             default: false
         },
-        // foo: {
-        //    default: null,      // The default value will be used only when the component attaching
-        //                           to a node for the first time
-        //    url: cc.Texture2D,  // optional, default is typeof default
-        //    serializable: true, // optional, default is true
-        //    visible: true,      // optional, default is true
-        //    displayName: 'Foo', // optional
-        //    readonly: false,    // optional, default is false
-        // },
-        // ...
+
+        showBack: {
+            default: false
+        },
     },
 
     ctor: function() {
         this._cardTemplateIdList = [];
-        this._pickedIndex = -1;
+        this._pickCardPrefab = null;
     },
 
     // use this for initialization
@@ -59,34 +53,16 @@ cc.Class({
         this.containerNode.removeAllChildren();
     },
 
-    /*
-    _getSpriteFrameName: function(cardTemplateID) {
-        var ret = '';
-        var type = cardTemplateID.substr(0, 2);
-        var nameMap = {
-            'AT': '_attack_',
-            'DF': '_defence_',
-            'DG': '_dodge',
-            'VD': '_voiddefence_',
-            'LS': '_lifesteal_',
-            'UK': '_back'
+    updateUI: function(cardTemplateIdListOrLength) {
+        var cardTemplateIdList = [];
+        if ('number' === typeof cardTemplateIdListOrLength) {
+            cardTemplateIdList = new Array(cardTemplateIdListOrLength);
+            cardTemplateIdList.fill('UK');
         }
-        var typePart = nameMap[type];
-        if (typePart) {
-            var value = parseInt(cardTemplateID.substr(2, 2));
-            var valuePart = '';
-            
-            if (value >= 0) {
-                valuePart = ('0' + value).slice(-2);                
-            }
-            ret = 'resources/Texture/poker' + typePart + valuePart + '.png';
+        else {
+            cardTemplateIdList = cardTemplateIdListOrLength;
         }
-        return ret;
-    },
-    */
-
-    updateUI: function(cardTemplateIdList) {        
-        this.containerNode.removeAllChildren();        
+        this.containerNode.removeAllChildren();  
         this.cardTemplateIdList = cardTemplateIdList;
         
         var space = this.containerNode.width / cardTemplateIdList.length;
@@ -94,17 +70,13 @@ cc.Class({
         var index = 0;
         var self = this;
         this.cardTemplateIdList.forEach((cardTemplateID) => {
-            /*
-            var node = new cc.Node(cardTemplateID);
-            var sprite = node.addComponent(cc.Sprite);
-            sprite.spriteFrame = new cc.SpriteFrame(cc.url.raw(this._getSpriteFrameName(cardTemplateID)));
-            node.x = left;
-            left += space;
-            node.cardIndex = index ++;
-            node.parent = this.containerNode;
-            */
             var cardPrefab = cc.instantiate(this.cardPrefabTemplate);
-            cardPrefab.getComponent('CardPrefab').setCardTemplateID(cardTemplateID);
+            if (this.showBack) {
+                cardPrefab.getComponent('CardPrefab').showBack();
+            }
+            else {
+                cardPrefab.getComponent('CardPrefab').showCardTemplateID(cardTemplateID);                
+            }
             cardPrefab.x = left;
             left += space;
             cardPrefab.cardIndex = index ++;
@@ -113,9 +85,9 @@ cc.Class({
             if (this.interactivable) {
                 var node = cardPrefab;
                 node.onTouchStart = function(event) {
-                    if (!event.getID() && !this.locked) {
+                    if (!event.getID() && !self.locked) {
                         console.log('touch start, index: ' + this.cardIndex);
-                        self._pickedIndex = this.cardIndex;
+                        self._pickCardPrefab = this;
                         this._startLocalVec = this.parent.convertTouchToNodeSpace(event);
                         if (!this._originalPosition) {
                             this._originalPosition = this.getPosition();                            
@@ -124,8 +96,8 @@ cc.Class({
                     }
                 }
                 node.onTouchMove = function(event) {
-                    if (!event.getID() && !this.locked) {
-                        if (this.cardIndex === self._pickedIndex) {
+                    if (!event.getID() && !self.locked) {
+                        if (this === self._pickCardPrefab) {
                             this.position = cc.pAdd(
                                 this._startPosition,
                                 cc.pSub(
@@ -137,16 +109,16 @@ cc.Class({
                     }
                 }
                 node.onTouchEnd = function(event) {
-                    if (!event.getID() && !this.locked) {
+                    if (!event.getID() && !self.locked) {
                         if (cc.Intersection.rectRect(
                             self.dropTargetCollisionNode.getBoundingBox(),
                             this.getBoundingBox())) {
                             this.position = self.dropTargetPositionNode.position;
-                            this.locked = true;                            
+                            self.locked = true;                            
                             self.node.emit('pick card', this.cardIndex);
                         }
                         else {
-                            self._pickedIndex = -1;
+                            self._pickCardPrefab = null;
                             this.position = this._originalPosition;
                         }
                     }
@@ -157,9 +129,4 @@ cc.Class({
             }
         });
     },
-
-    // called every frame, uncomment this function to activate update callback
-    // update: function (dt) {
-
-    // },
 });
