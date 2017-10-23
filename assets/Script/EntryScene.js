@@ -41,11 +41,21 @@ cc.Class({
     },
 
     onQuickMatchButtonClick: function() {
-        client.socket.emit(OpCodes.QUICK_MATCH);
+        if (client.socket.connected) {
+            client.socket.emit(OpCodes.QUICK_MATCH);            
+        }
+        else {
+            this.messagePrefab.showMessage('NOT CONNECTED', 1);
+        }
     },
 
     onHostGameButtonClick: function() {
-        client.socket.emit(OpCodes.CREATE_ROOM);
+        if (client.socket.connected) {
+            client.socket.emit(OpCodes.CREATE_ROOM);            
+        }
+        else {
+            this.messagePrefab.showMessage('NOT CONNECTED', 1);
+        }
     },
 
     onCreateRoomResponse: function(result, roomIdOrMsg) {
