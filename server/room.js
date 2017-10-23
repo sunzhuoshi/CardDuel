@@ -1,15 +1,17 @@
 var g = require('./global.js');
 
+var util = require('util');
 var Game = require('./game.js').Game;
 var OpCodes = require('./common.js').OpCodes;
 var RoomState = require('./common.js').RoomState;
 var PlayerState = require('./common.js').PlayerState;
 var config = require('./config.js');
+var base = require('./base.js');
 
 var roomIDSequence = 0;
 
-// TODO: inherit EventEmitterWithTimer with simplify timer code
 function Room() {
+    base.EventEmitterWithTimer.call(this);
     this.id = ++roomIDSequence;
     this.state = RoomState.STATE_IDLE;
     this.sessions = [];
@@ -20,13 +22,13 @@ function Room() {
     this.onPlayerReadyChanged = this.onPlayerReadyChanged.bind(this);
     
     this._game.on('end', this.onGameEnd);    
-    this._gameStartTimer = null;
 }
+
+util.inherits(Room, base.EventEmitterWithTimer);
 
 Room.prototype.onGameEnd = function() {
     this._updateRoomState();
 };
-
 
 Room.prototype.getSyncData = function() {
     var data = {
@@ -109,17 +111,15 @@ Room.prototype.onPlayerReadyChanged = function() {
         this.emitInRoom(OpCodes.GAME_WILL_START, config.Settings.GAME_START_COUNTDOWN);
         this.sessions.forEach((session) => {
             session.changeState(PlayerState.STATE_GAME_STARTING);
-        });            
-        if (this._gameStartTimer) {
-            clearTimeout(this._gameStartTimer);
-        }
-        this._gameStartTimer = setTimeout(function() {
-            self.changeState(RoomState.STATE_PLAYING);
+        });   
+        this.setTimeout('playing', () => {
+            this.changeState(RoomState.STATE_PLAYING);
         }, config.Settings.GAME_START_COUNTDOWN * 1000);
     }
 };
 
 Room.prototype.onExitState = function() {
+    this.clearTimeout('playing');    
     switch (this.state) {
         case RoomState.STATE_PLAYING:
             this._game.end();
@@ -128,7 +128,6 @@ Room.prototype.onExitState = function() {
 };
 
 Room.prototype.onEnterState = function() {
-    this._gameStartTimer = null;
     switch (this.state) {
         case RoomState.STATE_PLAYING:
             this.sessions.forEach((session) => {
