@@ -91,6 +91,7 @@ cc.Class({
         this.addSocketEventListener(OpCodes.GAME_CARD_VERSUS, this.onGameCardVersusNotification.bind(this));
         this.addSocketEventListener(OpCodes.GAME_ROUND, this.onGameRoundNotification.bind(this));     
         this.addSocketEventListener(OpCodes.PLAYER_TAKE_DAMAGE, this.onPlayerTakeDamageNotification.bind(this));                                                                   
+        this.addSocketEventListener(OpCodes.PLAYER_HEAL, this.onPlayerHealNotification.bind(this));                                                                           
         this.addSocketEventListener(OpCodes.GAME_END, this.onGameEndNotification.bind(this));   
         this._qrcode = null;    
         this._qrcodeDiv = null;                                                                    
