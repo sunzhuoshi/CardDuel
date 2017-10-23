@@ -129,20 +129,18 @@ Game.prototype._cardVersus = function() {
 };
 
 Game.prototype.onPlayerPickCard = function() {
+    var dataList = [];
+    this.sessions.forEach((session) => {
+        dataList.push({
+            id: session.userID,
+            picked: 0 < session.gameData.currentCardTemplateID.length,
+            cardCount: session.gameData.cardList.length
+        });
+    });
+    this.emitInGame(OpCodes.GAME_DATA_PICKED, dataList);    
     if (!this.winnerUserID &&
         this.firstSession.gameData.currentCardTemplateID.length > 0 && this.secondSession.gameData.currentCardTemplateID.length > 0) {
         this._cardVersus();
-    }
-    else {
-        var dataList = [];
-        this.sessions.forEach((session) => {
-            dataList.push({
-                id: session.userID,
-                picked: 0 < session.gameData.currentCardTemplateID.length,
-                cardCount: session.gameData.cardList.length
-            });
-        });
-        this.emitInGame(OpCodes.GAME_DATA_PICKED, dataList);
     }
 };
 

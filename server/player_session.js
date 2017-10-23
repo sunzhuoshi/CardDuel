@@ -260,11 +260,6 @@ PlayerSession.prototype._pickCard = function(cardIndex) {
     this.emit('pick card', this.gameData.currentCardTemplateID);
 };
 
-PlayerSession.prototype._playerPickCardTimeout = function() {
-    var cardIndex = (Math.floor(Math.random() * this.gameData.cardList.length));
-    this._pickCard(cardIndex);
-};
-
 PlayerSession.prototype.onPlayerPickCard = function(cardIndex) {
     if (this._checkIfOpAllowed(OpCodes.PLAYER_PICK_CARD, PlayerState.STATE_GAME)) {
         this.clearTimeout('player_pick_card');
@@ -279,7 +274,10 @@ PlayerSession.prototype.onPlayerPickCard = function(cardIndex) {
 
 PlayerSession.prototype.startTurn = function(pickCardCallback) {
     this.gameData.currentCardTemplateID = '';
-    this.setTimeout('player_pick_card', this._playerPickCardTimeout, config.Settings.PLAYER_PICK_CARD_TIMEOUT);         
+    this.setTimeout('player_pick_card', () => {
+            this._pickCard(Math.floor(Math.random() * this.gameData.cardList.length));
+        }, config.Settings.PLAYER_PICK_CARD_TIMEOUT
+    );
     this.socket.emit(OpCodes.PLAYER_TURN);  
 };
 //>

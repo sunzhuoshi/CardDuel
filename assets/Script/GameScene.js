@@ -175,8 +175,8 @@ cc.Class({
     },
 
     onPlayerPickCardResponse: function(result, cardIndex, cardTemplateID) {
-        if (!result) {
-            // TODO: move the picked card back
+        if (result) {
+            this.selfCardsPrefab.pickedCardPrefab.showCardTemplateID(cardTemplateID);
         }
     },
 

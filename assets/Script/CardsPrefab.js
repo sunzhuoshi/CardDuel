@@ -29,6 +29,11 @@ cc.Class({
             type: cc.Node
         },
 
+        pickedCardPrefab: {
+            default: null,
+            type: CardPrefab
+        },
+
         interactivable: {
             default: false
         },
@@ -62,6 +67,7 @@ cc.Class({
         else {
             cardTemplateIdList = cardTemplateIdListOrLength;
         }
+        this.pickedCardPrefab.node.active = false;
         this.containerNode.removeAllChildren();  
         this.cardTemplateIdList = cardTemplateIdList;
         
@@ -114,7 +120,7 @@ cc.Class({
                             self.dropTargetCollisionNode.getBoundingBox(),
                             this.getBoundingBox())) {
                             this.position = self.dropTargetPositionNode.position;
-                            self.locked = true;                            
+                            self.locked = true;
                             self.node.emit('pick card', this.cardIndex);
                         }
                         else {
