@@ -61,8 +61,10 @@ cc.Class({
             this._updateHpStartTime = new Date().getTime();
         }
         else if (deltaHP > 0) {
+            this.deltaHpLabel.node.active = true;            
             this.deltaHpLabel.string = '+' + deltaHP;
             this.deltaHpLabel.node.color = cc.Color.GREEN;
+            this._updateHpStartTime = new Date().getTime();            
         }
     },
 
