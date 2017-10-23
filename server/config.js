@@ -37,7 +37,7 @@ var PlayerCardDefineList = [
 
 var Settings = {
     PLAYER_INIT_HP:                         10,
-    PLAYER_PICK_CARD_TIMEOUT:               999 * 1000, // ms
+    PLAYER_PICK_CARD_TIMEOUT:               30 * 1000, // ms
     GAME_START_COUNTDOWN:                   3, // seconds 
     GAME_NEXT_ROUND_DELAY:                  2 * 1000, // ms
     GAME_END_DELAY:                         2 * 1000, // ms
