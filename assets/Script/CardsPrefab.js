@@ -88,11 +88,16 @@ cc.Class({
             cardPrefab.cardIndex = index ++;
             cardPrefab.parent = this.containerNode;
 
+            this._touchID = null;
+
             if (this.interactivable) {
                 var node = cardPrefab;
                 node.onTouchStart = function(event) {
-                    if (!event.getID() && !self.locked) {
-                        console.log('touch start, index: ' + this.cardIndex);
+                    if (!self.locked) {
+                        if (self._touchID) {
+                            return;
+                        }
+                        self._touchID = event.getID();
                         self._pickCardPrefab = this;
                         this._startLocalVec = this.parent.convertTouchToNodeSpace(event);
                         if (!this._originalPosition) {
@@ -102,7 +107,10 @@ cc.Class({
                     }
                 }
                 node.onTouchMove = function(event) {
-                    if (!event.getID() && !self.locked) {
+                    if (!self.locked) {
+                        if (event.getID() != self._touchID) {
+                            return;
+                        }
                         if (this === self._pickCardPrefab) {
                             this.position = cc.pAdd(
                                 this._startPosition,
@@ -115,7 +123,11 @@ cc.Class({
                     }
                 }
                 node.onTouchEnd = function(event) {
-                    if (!event.getID() && !self.locked) {
+                    if (!self.locked) {
+                        if (event.getID() != self._touchID) {
+                            return;
+                        }
+                        self._touchID = null;
                         if (cc.Intersection.rectRect(
                             self.dropTargetCollisionNode.getBoundingBox(),
                             this.getBoundingBox())) {
@@ -131,7 +143,7 @@ cc.Class({
                 }
                 node.on(cc.Node.EventType.TOUCH_START, node.onTouchStart, node);
                 node.on(cc.Node.EventType.TOUCH_MOVE, node.onTouchMove, node);
-                node.on(cc.Node.EventType.TOUCH_END, node.onTouchEnd, node);    
+                node.on(cc.Node.EventType.TOUCH_END, node.onTouchEnd, node);
             }
         });
     },
