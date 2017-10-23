@@ -23,14 +23,14 @@ EventEmitterWithTimer.prototype.clearTimeout = function(timerName) {
 
 EventEmitterWithTimer.prototype.clearAllTimeouts = function(callback) {
     if ('function' === typeof callback) {
-        for (var name in Object.keys(this._timers)) {
+        for (var name in this._timers) {
             if (callback.call(null, name)) {
                 this.clearTimeout(name);                
             }
         }    
     }
     else {
-        for (var name in Object.keys(this._timers)) {
+        for (var name in this._timers) {
             this.clearTimeout(name);                
         }
     }
