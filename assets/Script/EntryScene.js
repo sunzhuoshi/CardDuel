@@ -77,13 +77,13 @@ cc.Class({
             cc.director.loadScene('GameScene');            
         }
         else {
-            this.messagePrefab.showMessage(roomIdOrMsg, 1);            
+            this.messagePrefab.showMessage(roomIdOrMsg, 2);            
         }
     },
 
     onQuickMatchResponse: function(result, roomIdOrMsg) {
         if (!result) {
-            this.messagePrefab.showMessage(roomIdOrMsg, 1);
+            this.messagePrefab.showMessage(roomIdOrMsg, 2);
         }
     }
 
