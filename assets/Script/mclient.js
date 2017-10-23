@@ -21,15 +21,22 @@
         EventEmitter.call(this);
         this.dev = true;
         this.version = 'v0.1';
-        this.server = '';
         this.cmd = '';
         this.roomID = 0;
         this.userID = 0;
         this.socket = null;
-        
         this.roomData = null;
-
         this.gameData = null;
+
+        var origin = window.location.origin;
+        var index = origin.indexOf(':', origin.indexOf(':') + 1);
+        if (0 <= index) {
+            this.server = origin.substr(0, index);
+        }
+        else {
+            this.server = origin;
+        }
+        this.server += ':8888';
     }
 
     inherits(Client, EventEmitter);
@@ -92,9 +99,6 @@
     }
     
     Client.prototype.init = function() {
-        if (this.dev) {
-            this.server = 'http://localhost:8888';
-        }
         var params = this._getQueryParams(window.location.search);
         this.cmd = params['cmd'];
         this.roomID = this._parseIntParam(params['rid'], 0);
@@ -108,7 +112,12 @@
             this.socket = io(this.server);
 
             this.socket.packet = inject(this.socket.packet, function() {
-                console.log('sending packet: %s', arguments[0].data.join(','));                    
+                if (arguments[0].data) {
+                    console.log('sending packet: %s', arguments[0].data.join(','));                    
+                }
+                else {
+                    console.log('sending packet: %s', JSON.stringify(arguments));
+                }
             });
             
             // TODO: check why it desn't work
