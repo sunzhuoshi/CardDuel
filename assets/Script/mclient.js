@@ -184,7 +184,7 @@
                 }
                 this._qrcodeDiv = div;
                 this._qrcode = new QRCode(div, {
-                    text: (window.location.origin + '?cmd=join_room&rid=' + client.roomData.id),
+                    text: (window.location.origin + window.location.pathname + '?cmd=join_room&rid=' + client.roomData.id),
                     width: QRCODE_SIZE,
                     height: QRCODE_SIZE,
                     colorDark : "#000000",
