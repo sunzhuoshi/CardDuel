@@ -184,7 +184,7 @@ var CardVersus = function(firstPlayer, secondPlayer) {
                     break;
                 case CardType.TYPE_VOID_DEFENCE:
                     if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
-                        actionDely += actionDuration;                        
+                        actionDelay += actionDuration;                        
                         firstPlayer.takeDamage(secondCard.value, actionDelay);
                     }					
                     break;
