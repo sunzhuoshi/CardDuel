@@ -21,9 +21,9 @@
         EventEmitter.call(this);
         this.dev = true;
         this.version = 'v0.1';
-        this.cmd = '';
-        this.roomID = 0;
-        this.userID = 0;
+        this.loginCmd = '';
+        this.loginRoomID = 0;
+        this.loginUserID = 0;
         this.socket = null;
         this.roomData = null;
         this.gameData = null;
@@ -100,9 +100,9 @@
     
     Client.prototype.init = function() {
         var params = this._getQueryParams(window.location.search);
-        this.cmd = params['cmd'];
-        this.roomID = this._parseIntParam(params['rid'], 0);
-        this.userID = this._parseIntParam(params['uid'], 0);
+        this.loginCmd = params['cmd'];
+        this.loginRoomID = this._parseIntParam(params['rid'], 0);
+        this.loginUserID = this._parseIntParam(params['uid'], 0);
     }
     
     Client.prototype.connect = function() {
@@ -140,6 +140,22 @@
             });
         }
     }
+
+    Client.prototype.processloginCmd = function() {
+        switch (this.loginCmd) {
+            case 'join_room':
+                if (this.loginRoomID) {
+                    this.socket.emit(OpCodes.JOIN_ROOM, this.loginRoomID);
+                    this.socket.once(OpCodes.JOIN_ROOM, () => {
+                        this.loginCmd = '';
+                        this.loginRoomID = 0;
+                    });
+                }
+                break;
+            default:
+                break;
+        }
+    },
         
     Client.prototype._login = function() {
         if (!this.userID) {
@@ -198,7 +214,7 @@
                 this._qrcodeDiv.style.display = 'block';                    
             }
         }
-    }            
+    }       
     window.client = new Client();
     window.client.init();
 })();

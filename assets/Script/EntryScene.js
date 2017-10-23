@@ -34,6 +34,14 @@ cc.Class({
         this.quickMatchButton.node.on('click', this.onQuickMatchButtonClick, this);
         this.hostGameButton.node.on('click', this.onHostGameButtonClick, this);
         this.versionLabel.string = client.version;
+        cc.director.once(cc.Director.EVENT_AFTER_SCENE_LAUNCH, (event) => {
+            if (client.socket.connected) {
+                client.processloginCmd();
+            }
+            else {
+                this.showMessage('NOT CONNECTED', 1);
+            }
+        });    
     },
 
     onDestroy: function() {
@@ -69,7 +77,7 @@ cc.Class({
             cc.director.loadScene('GameScene');            
         }
         else {
-            this.messagePrefab.showMessage(roomIdOrMsg);            
+            this.messagePrefab.showMessage(roomIdOrMsg, 1);            
         }
     },
 
