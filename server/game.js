@@ -101,7 +101,7 @@ Game.prototype._cardVersus = function() {
     })
     this.emitInGame(OpCodes.GAME_CARD_VERSUS, dataList);
 
-    CardVersus(this.firstSession, this.secondSession);
+    var versusDelay = CardVersus(this.firstSession, this.secondSession);
 
     this.sessions.forEach((session) => {
         session.gameData.currentCardTemplateID = ''
@@ -118,13 +118,13 @@ Game.prototype._cardVersus = function() {
             this._timers['end_timer'] = setTimeout(() => {
                 this.end();
             }, config.Settings.GAME_END_DELAY);                    
-        }, config.Settings.GAME_NEXT_ROUND_DELAY);
+        }, config.Settings.GAME_NEXT_ROUND_DELAY + versusDelay);
     }   
     else {
         this._timers['round_timer'] = setTimeout(() => {
             this.round ++;
             this._startRound();
-        }, config.Settings.GAME_NEXT_ROUND_DELAY);
+        }, config.Settings.GAME_NEXT_ROUND_DELAY + versusDelay);
     }
 };
 

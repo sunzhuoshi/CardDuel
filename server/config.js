@@ -47,47 +47,53 @@ var CardVersus = function(firstPlayer, secondPlayer) {
     var firstCard = firstPlayer.getCurrentCard();
     var secondCard = secondPlayer.getCurrentCard();
 
+    var actionDelay = 0;
+    var actionDuration = 1000;
+
     g.logger.debug('u[%d]%s vs. u[%d]%s', firstPlayer.userID, firstCard.id, secondPlayer.userID, secondCard.id);
 
     if (!firstCard || !secondCard) {
         g.logger.warn('void card, user1: %d, user2: %d', firstPlayer.userID, secondPlayer.userID);
-        return;
+        return actionDelay;
     }
 
     if (firstCard.type == CardType.TYPE_DOGUE || secondCard.type == CardType.TYPE_DOGUE) {
         firstPlayer.setFirst(false);
         secondPlayer.setFirst(false);
-        return;
+        return actionDelay;
     }
     switch (firstCard.type) {
         case CardType.TYPE_LIFE_STEAL:
             switch (secondCard.type) {
                 case CardType.TYPE_LIFE_STEAL: {
-                    let alive = secondPlayer.takeDamage(firstCard.value);
-                    firstPlayer.heal(firstCard.value);
+                    let alive = secondPlayer.takeDamage(firstCard.value, actionDelay);
+                    firstPlayer.heal(firstCard.value, actionDelay);
                     if (alive) {
-                        firstPlayer.takeDamage(secondCard.value);
-                        secondPlayer.heal(secondCard.value);
+                        actionDelay += actionDuration;
+                        firstPlayer.takeDamage(secondCard.value, actionDelay);
+                        secondPlayer.heal(secondCard.value, actionDelay);
                     }
                     break;
                 }                
                 case CardType.TYPE_ATTACK: {
-                    let alive = secondPlayer.takeDamage(firstCard.value);
-                    firstPlayer.heal(firstCard.value);
+                    let alive = secondPlayer.takeDamage(firstCard.value, actionDelay);
+                    firstPlayer.heal(firstCard.value, actionDelay);
                     if (alive) {
-                        firstPlayer.takeDamage(secondCard.value);
+                        actionDelay += actionDuration;
+                        firstPlayer.takeDamage(secondCard.value, actionDelay);
                     }							
                     break;
                 }
                 case CardType.TYPE_DEFENCE:
-                    secondPlayer.takeDamage(firstCard.value - secondCard.value);
-                    firstPlayer.heal(firstCard.value);
+                    secondPlayer.takeDamage(firstCard.value - secondCard.value, actionDelay);
+                    firstPlayer.heal(firstCard.value, actionDelay);
                     break;
                 case CardType.TYPE_VOID_DEFENCE: {
-                    let alive = secondPlayer.takeDamage(firstCard.value);
-                    firstPlayer.heal(firstCard.value);
+                    let alive = secondPlayer.takeDamage(firstCard.value, actionDelay);
+                    firstPlayer.heal(firstCard.value, actionDelay);
                     if (alive) {
-                        firstPlayer.takeDamage(secondCard.value);
+                        actionDelay += actionDuration;
+                        firstPlayer.takeDamage(secondCard.value, actionDelay);
                     }						
                     break;
                 }
@@ -98,19 +104,21 @@ var CardVersus = function(firstPlayer, secondPlayer) {
         case CardType.TYPE_ATTACK:
             switch (secondCard.type) {
                 case CardType.TYPE_LIFE_STEAL:
-                    if (secondPlayer.takeDamage(firstCard.value)) {
-                        firstPlayer.takeDamage(secondCard.value);
-                        secondPlayer.heal(secondCard.value);
+                    if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
+                        actionDelay += actionDuration;
+                        firstPlayer.takeDamage(secondCard.value, actionDelay);
+                        secondPlayer.heal(secondCard.value, actionDelay);
                     }
                     break;
                 case CardType.TYPE_ATTACK:
-                    if (secondPlayer.takeDamage(firstCard.value)) {
-                        firstPlayer.takeDamage(secondCard.value);
+                    if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
+                        actionDelay += actionDuration;                        
+                        firstPlayer.takeDamage(secondCard.value, actionDelay);
                     }
                     break;
                 case CardType.TYPE_DEFENCE: {
                     let damage = firstCard.value - secondCard.value;
-                    secondPlayer.takeDamage(damage);                    
+                    secondPlayer.takeDamage(damage, actionDelay);                    
                     if (damage <= 0) {
                         firstPlayer.setFirst(false);
                         secondPlayer.setFirst(true);
@@ -118,8 +126,9 @@ var CardVersus = function(firstPlayer, secondPlayer) {
                     break;
                 }
                 case CardType.TYPE_VOID_DEFENCE:
-                    if (secondPlayer.takeDamage(firstCard.value)) {
-                        firstPlayer.takeDamage(secondCard.value);
+                    if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
+                        actionDelay += actionDuration;                        
+                        firstPlayer.takeDamage(secondCard.value, actionDelay);
                     }					
                     break;
                 default:
@@ -129,14 +138,15 @@ var CardVersus = function(firstPlayer, secondPlayer) {
         case CardType.TYPE_DEFENCE:
             switch (secondCard.type) {
                 case CardType.TYPE_LIFE_STEAL:
-                    if (secondPlayer.takeDamage(firstCard.value)) {
-                        firstPlayer.takeDamage(secondCard.value);
-                        secondPlayer.heal(secondCard.value);
+                    if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
+                        actionDelay += actionDuration;                        
+                        firstPlayer.takeDamage(secondCard.value, actionDelay);
+                        secondPlayer.heal(secondCard.value, actionDelay);
                     }
                     break;
                 case CardType.TYPE_ATTACK: {
                     let damage = secondCard.value - firstCard.value;
-                    firstPlayer.takeDamage(damage);                    
+                    firstPlayer.takeDamage(damage, actionDelay);                    
                     if (damage) {
                         firstPlayer.setFirst(false);
                         secondPlayer.setFirst(true);
@@ -146,7 +156,7 @@ var CardVersus = function(firstPlayer, secondPlayer) {
                 case CardType.TYPE_DEFENCE:
                     break;
                 case CardType.TYPE_VOID_DEFENCE:
-                    firstPlayer.takeDamage(secondCard.value);
+                    firstPlayer.takeDamage(secondCard.value, actionDelay);
                     secondPlayer.setFirst(true);
                     firstPlayer.setFirst(false);
                     break;
@@ -157,22 +167,25 @@ var CardVersus = function(firstPlayer, secondPlayer) {
         case CardType.TYPE_VOID_DEFENCE:
             switch (secondCard.type) {
                 case CardType.TYPE_LIFE_STEAL:
-                    if (secondPlayer.takeDamage(firstCard.value)) {
-                        firstPlayer.takeDamage(secondCard.value);
-                        secondPlayer.heal(secondCard.value);
+                    if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
+                        actionDelay += actionDuration;                        
+                        firstPlayer.takeDamage(secondCard.value, actionDelay);
+                        secondPlayer.heal(secondCard.value, actionDelay);
                     }
                     break;
                 case CardType.TYPE_ATTACK:
-                    if (secondPlayer.takeDamage(firstCard.value)) {
-                        firstPlayer.takeDamage(secondCard.value);
+                    if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
+                        actionDelay += actionDuration;                        
+                        firstPlayer.takeDamage(secondCard.value, actionDelay);
                     }
                     break;
                 case CardType.TYPE_DEFENCE:
                     secondPlayer.takeDamage(firstCard.value);
                     break;
                 case CardType.TYPE_VOID_DEFENCE:
-                    if (secondPlayer.takeDamage(firstCard.value)) {
-                        firstPlayer.takeDamage(secondCard.value);
+                    if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
+                        actionDely += actionDuration;                        
+                        firstPlayer.takeDamage(secondCard.value, actionDelay);
                     }					
                     break;
                 default:
@@ -181,7 +194,8 @@ var CardVersus = function(firstPlayer, secondPlayer) {
             break;
         default:
             break;
-    } 
+    }
+    return actionDelay;
 };
 
 module.exports = {

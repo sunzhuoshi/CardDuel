@@ -188,7 +188,7 @@ PlayerSession.prototype.onPlayerChangeReady = function(ready) {
 
 PlayerSession.prototype.changeState = function(state) {
     if (state != this.state) {
-        var oldState = this.state;
+        this.clearAllTimeouts();
         this.state = state;
         switch (this.state) {
             case PlayerState.STATE_ROOM:
@@ -213,7 +213,7 @@ PlayerSession.prototype.setFirst = function(first) {
     this.gameData.first = first;
 };
 
-PlayerSession.prototype.takeDamage = function(damage) {
+PlayerSession.prototype.takeDamage = function(damage, emitDelay) {
     if (damage > 0) {
         this.gameData.hp -= damage;
         if (this.gameData.hp < 0) {
@@ -221,16 +221,30 @@ PlayerSession.prototype.takeDamage = function(damage) {
         }
     }
     g.logger.debug('u[%d] take damage: %d, hp: %d', this.userID, damage, this.gameData.hp);
-    this.game.emitInGame(OpCodes.PLAYER_TAKE_DAMAGE, this.userID, damage, this.gameData.hp);
+    if (0 < emitDelay) {
+        this.setTimeout('take_damage', () => {
+            this.game.emitInGame(OpCodes.PLAYER_TAKE_DAMAGE, this.userID, damage, this.gameData.hp);
+        }, emitDelay);
+    } 
+    else {
+        this.game.emitInGame(OpCodes.PLAYER_TAKE_DAMAGE, this.userID, damage, this.gameData.hp);        
+    }
     return this.gameData.hp > 0;
 };
 
-PlayerSession.prototype.heal = function(hp) {
-    if (hp > 0) {
-        this.gameData.hp += hp;
+PlayerSession.prototype.heal = function(heal, emitDelay) {
+    if (heal > 0) {
+        this.gameData.hp += heal;
     }
-    g.logger.debug('u[%d] heal: %d, hp: %d', this.userID, hp, this.gameData.hp);        
-    this.socket.emit(OpCodes.PLAYER_HEAL, hp, this.gameData.hp);
+    g.logger.debug('u[%d] heal: %d, hp: %d', this.userID, heal, this.gameData.hp);
+    if (0 < emitDelay) {
+        this.setTimeout('heal', () => {
+            this.game.emitInGame(OpCodes.PLAYER_HEAL, this.userID, heal, this.gameData.hp);        
+        }, emitDelay);
+    }
+    else {
+        this.game.emitInGame(OpCodes.PLAYER_HEAL, this.userID, heal, this.gameData.hp);        
+    }
 };
 
 PlayerSession.prototype.getCurrentCard = function() {
