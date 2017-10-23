@@ -114,7 +114,7 @@ PlayerSession.prototype._leaveRoom = function() {
 
 PlayerSession.prototype._checkIfOpAllowed = function(opcode, states) {
     var allowed = false;
-    if ('Array' === typeof states) {
+    if (states instanceof Array) {
         allowed = (0 <= states.indexOf(this.state));
     }
     else if ('string' === typeof states) {
