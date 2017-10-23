@@ -194,8 +194,11 @@
                     div.style.position = 'absolute';
                     div.style.left = '50%';
                     div.style.top = '40%';
-                    div.style.margin = ('-' + QRCODE_SIZE / 2 + 'px -' + QRCODE_SIZE / 2 + 'px');
-                    div.onchange
+                    div.style.margin = ('-' + QRCODE_SIZE / 2 + 'px -' + QRCODE_SIZE / 2 + 'px');                    
+                    div.style.userSelect = 'none';
+                    div.addEventListener('touchmove', function(event) {
+                        event.preventDefault();
+                    });
                     document.getElementById('Cocos2dGameContainer').appendChild(div);
                 }
                 this._qrcodeDiv = div;
