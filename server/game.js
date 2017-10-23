@@ -18,6 +18,8 @@ function Game(room) {
     this.winnerUserID = 0;
     this._isEnded = false;
     this._timers = {};
+
+    this.onPlayerPickCard = this.onPlayerPickCard.bind(this);
 }
 
 util.inherits(Game, events.EventEmitter);
