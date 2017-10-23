@@ -40,17 +40,6 @@ Game.prototype._getSyncDataForPlayer = function(session) {
     });
     return ret;
 };
-
-Game.prototype._getSyncFirstData = function() {
-    var data = [];
-    this.sessions.forEach((session) => {
-        data.push({
-            id: session.userID,
-            first: session.gameData.first
-        });
-    });
-    return data;
-};
 //>
 
 Game.prototype._generateWinner = function() {        
