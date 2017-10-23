@@ -137,8 +137,9 @@
             this.userID = this._parseIntParam(window.localStorage.getItem('cd_user_id'), 0);                    
         }
         this.socket.emit(OpCodes.LOGIN, this.userID);
-        this.socket.on(OpCodes.LOGIN, function(result, userIdOrMsg, playerState) {
+        this.socket.on(OpCodes.LOGIN, (result, userIdOrMsg, playerState) => {
             if (result) {
+                this.userID = userIdOrMsg;
                 window.localStorage.setItem('cd_user_id', userIdOrMsg);
                 // deal with server restart when we're in game scene
                 if (playerState === PlayerState.STATE_IDLE) {
