@@ -7,9 +7,10 @@ var CardTemplateManager = require('./card.js').CardTemplateManager;
 var OpCodes = require('./common.js').OpCodes;
 var CardVersus = require('./config.js').CardVersus;
 var config = require('./config.js');
+var base = require('./base.js');
 
 function Game(room) {
-    events.EventEmitter.call(this);
+    base.EventEmitterWithTimer.call(this);
     this.room = room;      
     this.firstSession = null;
     this.secondSession = null;
@@ -22,7 +23,7 @@ function Game(room) {
     this.onPlayerPickCard = this.onPlayerPickCard.bind(this);
 }
 
-util.inherits(Game, events.EventEmitter);
+util.inherits(Game, base.EventEmitterWithTimer);
 
 //< TODO: refactor 
 Game.prototype._getSyncDataForPlayer = function(session) {
@@ -108,20 +109,20 @@ Game.prototype._cardVersus = function() {
     });
 
     if (this._ifGameEnds()) {
-        this._timers['round_timer'] = setTimeout(() => {
+        this.setTimeout('round_timer', () => {
             this.sessions.forEach((session) => {
                 session.gameData.setToEnd();
             });
             this._syncGameData();
             this._generateWinner();
-            this.emitInGame(OpCodes.GAME_END, this.winnerUserID);        
-            this._timers['end_timer'] = setTimeout(() => {
+            this.emitInGame(OpCodes.GAME_END, this.winnerUserID);
+            this.setTimeout('end_timer', () => {
                 this.end();
-            }, config.Settings.GAME_END_DELAY);                    
+            }, config.Settings.GAME_END_DELAY);        
         }, config.Settings.GAME_NEXT_ROUND_DELAY + versusDelay);
     }   
     else {
-        this._timers['round_timer'] = setTimeout(() => {
+        this.setTimeout('round_timer', () => {
             this.round ++;
             this._startRound();
         }, config.Settings.GAME_NEXT_ROUND_DELAY + versusDelay);
