@@ -321,6 +321,7 @@ function PlayerSessionManager() {
         g.logger.debug('removing session, user id: %d', session.userID);
         var index = this.sessionList.indexOf(session);
         if (0 <= index) {
+            this.sessionList[index].clearAllTimeouts();
             g.logger.debug('removed session, user id: %d', session.userID);
             this.sessionList.splice(index, 1);
         }
