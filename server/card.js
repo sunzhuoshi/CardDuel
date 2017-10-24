@@ -7,7 +7,7 @@ function CardTemplate(id, type, value) {
 }
 
 function CardTemplateManager() {
-	this.items = [];
+	this.items = {};
 
 	CardTemplateDefineList.forEach((cardTemplateDefine) => {
 		let cardTemplate = new CardTemplate(cardTemplateDefine[0], cardTemplateDefine[1], cardTemplateDefine[2]);
