@@ -43,6 +43,13 @@ function BaseSession(userID) {
                     this.cardList.push(templateID);
                 }
             });
+            // change the card order randomly
+            for (var i=0; i<this.cardList.length; ++i) {
+                var index = Math.floor(Math.random() * this.cardList.length);
+                var tmp = this.cardList[i];
+                this.cardList[i] = this.cardList[index];
+                this.cardList[index] = tmp;
+            }
         },
         cloneAsOpp: function() {
             var clone = common.util.clone(this);
@@ -50,7 +57,7 @@ function BaseSession(userID) {
                 return a > b;
             });
             return clone;
-        }        
+        }     
     }
 }
 
@@ -68,7 +75,7 @@ BaseSession.prototype.getSyncDataInGame = function() {
     return {
         id: this.userID,
         name: this.name,
-        data: this.gameData
+        data: this.gameData,
     }
 }
 
