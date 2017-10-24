@@ -94,7 +94,8 @@ cc.Class({
         this.addSocketEventListener(OpCodes.PLAYER_HEAL, this.onPlayerHealNotification.bind(this));                                                                           
         this.addSocketEventListener(OpCodes.GAME_END, this.onGameEndNotification.bind(this));   
         this._qrcode = null;    
-        this._qrcodeDiv = null;                                                                    
+        this._qrcodeDiv = null; 
+        this._enableAI = false;                                                            
     },
 
     // use this for initialization
@@ -104,6 +105,15 @@ cc.Class({
         this.getReadyButton.node.on('click', this.onGetReadyButtonClick, this);
         this.leaveButton.node.on('click', this.onLeaveRoomButtonClick, this);
         this.selfCardsPrefab.node.on('pick card', this.onPickCard, this);
+        this.selfAvatarPrefab.avatarSprite.node.on(cc.Node.EventType.TOUCH_END, () => {
+            this._enableAI = !this._enableAI;
+            if (this._enableAI) {
+                this._generateWinChance(client.gameData);
+            }
+            else {
+                this._hideWinChance();
+            }
+        });
     },
 
     onDestroy: function() {
@@ -182,7 +192,17 @@ cc.Class({
 
     onGameDataNotification: function(gameData) {
         this._updateUIInGame(gameData);
-        this._generateWinChance(gameData);
+        if (this._enableAI) {
+            this._generateWinChance(gameData);            
+        }
+    },
+
+    _hideWinChance: function() {
+        var cardNodes = this.selfCardsPrefab.containerNode.children;
+        for (var i=0; i<cardNodes.length; ++i) {
+            var cardPrefab = cardNodes[i].getComponent('CardPrefab');
+            cardPrefab.winChanceLabel.node.active = false;
+        }
     },
 
     _generateWinChance: function(gameData) {
