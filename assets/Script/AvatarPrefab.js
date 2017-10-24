@@ -78,7 +78,7 @@ cc.Class({
     },
 
     updateUI: function(player) {
-        this.nameLabel.string = 'Player' + player.id;
+        this.nameLabel.string =  player.name;
         if (undefined !== player.data.hp) {
             this.heartSprite.node.active = true;
             this.hpLabel.string = player.data.hp;

@@ -15,6 +15,7 @@ function PlayerSession(sessionManager, userID, socket) {
     base.EventEmitterWithTimer.call(this);    
     this.sessionManager = sessionManager;
     this.userID = userID;
+    this.name = 'Player' + userID;
     this.socket = socket;
     this.state = PlayerState.STATE_IDLE;
 
@@ -64,6 +65,7 @@ util.inherits(PlayerSession, base.EventEmitterWithTimer);
 PlayerSession.prototype.getSyncDataInRoom = function() {
     return {
         id: this.userID,
+        name: this.name,
         data: this.roomData
     }
 };
@@ -71,6 +73,7 @@ PlayerSession.prototype.getSyncDataInRoom = function() {
 PlayerSession.prototype.getSyncDataInGame = function() {
     return {
         id: this.userID,
+        name: this.name,
         data: this.gameData
     }
 };
