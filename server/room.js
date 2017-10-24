@@ -48,12 +48,12 @@ Room.prototype.broadcastSyncData = function() {
 
 Room.prototype._onSessionEvents = function(session) {
     session.on('disconnect', this.onPlayerDisconnect);
-    session.on('ready changed', this.onPlayerReadyChanged);
+    session.on('ready_changed', this.onPlayerReadyChanged);
 };
 
 Room.prototype._offSessionEvents = function(session) {
     session.removeListener('disconnect', this.onPlayerDisconnect);
-    session.removeListener('ready changed', this.onPlayerReadyChanged);
+    session.removeListener('ready_changed', this.onPlayerReadyChanged);
 };
 
 Room.prototype._updateRoomState = function() {
@@ -77,18 +77,22 @@ Room.prototype.addSession = function(session, callback) {
     if (this.sessions.length < Room.SIZE) {
         this.sessions.push(session);
         this._onSessionEvents(session);
-        callback.call(null, true, this.id);
+        if ('function' === typeof callback) {
+            callback.call(null, true, this.id);            
+        }
         this._onSessionsChange();
     }
     else {
-        callback.call(null, false, 'Room is full');
+        if ('function' === typeof callback) {
+            callback.call(null, false, 'Room is full');            
+        }
     }
 };
 
 Room.prototype.removeSession = function(session) {
     this._offSessionEvents(session);
     this.sessions = this.sessions.filter((s) => {
-        return s !== session;
+        return s !== session && !s.isRemovable();
     });
     this._onSessionsChange();        
 };

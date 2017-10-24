@@ -20,6 +20,11 @@ cc.Class({
             type: cc.Button
         },
 
+        challengeAIButton: {
+            default: null,
+            type: cc.Button
+        },
+
         versionLabel: {
             default: null,
             type: cc.Label
@@ -33,13 +38,14 @@ cc.Class({
         cc.director.preloadScene('GameScene');  // load game scene to save time to transit
         this.quickMatchButton.node.on('click', this.onQuickMatchButtonClick, this);
         this.hostGameButton.node.on('click', this.onHostGameButtonClick, this);
+        this.challengeAIButton.node.on('click', this.onChallengeAIButtonClick, this);
         this.versionLabel.string = client.version;
         cc.director.once(cc.Director.EVENT_AFTER_SCENE_LAUNCH, (event) => {
             if (client.socket.connected) {
                 client.processloginCmd();
             }
             else {
-                this.showMessage('NOT CONNECTED', 1);
+                this.messagePrefab.showMessage('NOT CONNECTED', 1);
             }
         });    
     },
@@ -66,6 +72,15 @@ cc.Class({
         }
     },
 
+    onChallengeAIButtonClick: function() {
+        if (client.socket.connected) {
+            client.socket.emit(OpCodes.CHALLENGE_AI);            
+        }
+        else {
+            this.messagePrefab.showMessage('NOT CONNECTED', 1);
+        }
+    },
+
     onCreateRoomResponse: function(result, roomIdOrMsg) {
         if (!result) {
             this.messagePrefab.showMessage(roomIdOrMsg);
@@ -85,6 +100,9 @@ cc.Class({
         if (!result) {
             this.messagePrefab.showMessage(roomIdOrMsg, 2);
         }
-    }
+    },
 
+    onVersusAIResponse: function(result) {
+
+    },
 });

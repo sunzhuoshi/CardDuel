@@ -67,9 +67,14 @@ Game.prototype._ifGameEnds = function() {
 
 Game.prototype._updateFirst = function() {
     this.firstSession = this.sessions.find((session) => {
-        return session.first;
+        return session.gameData.first;
     });
-    if (!this.firstSession) {
+    if (this.firstSession) {
+        this.secondSession = this.sessions.find((session) => {
+            return !session.gameData.first;
+        });
+    }
+    else {
         let firstSessionIndex = Math.random() > 0.5? 1: 0;
         let secondSessionIndex = (firstSessionIndex + 1) % 2;
         this.firstSession = this.sessions[firstSessionIndex];
@@ -174,7 +179,7 @@ Game.prototype._setup = function() {
 
 Game.prototype._syncGameData = function() {
     this.sessions.forEach((session) => {
-        session.socket.emit(OpCodes.GAME_DATA, this._getSyncDataForPlayer(session));
+        session.send(OpCodes.GAME_DATA, this._getSyncDataForPlayer(session));
     });
 },
             

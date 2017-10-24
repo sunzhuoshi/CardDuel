@@ -1,6 +1,5 @@
 var g = require('./global.js');
 
-var events = require('events'); 
 var util = require('util');
 
 var config = require('./config.js');
@@ -8,79 +7,17 @@ var RoomManager = require('./room.js').RoomManager;
 var common = require('./common.js');
 var OpCodes = common.OpCodes;
 var PlayerState = require('./common.js').PlayerState;
-var CardTemplateManager = require('./card.js').CardTemplateManager;
-var base = require('./base.js');
+var BaseSession = require('./base_session.js').BaseSession;
+var AISession = require('./ai_session.js').AISession;
 
-function PlayerSession(sessionManager, userID, socket) {
-    base.EventEmitterWithTimer.call(this);    
-    this.sessionManager = sessionManager;
-    this.userID = userID;
-    this.name = 'Player' + userID;
+function PlayerSession(userID, sessionManager, socket) {
+    BaseSession.apply(this, arguments);
+    this.sessionManager = sessionManager;    
     this.socket = socket;
-    this.state = PlayerState.STATE_IDLE;
-
-    this.room = null;
-
-    this.game = null;
-
-    this.roomData = {
-        ready: false
-    };
-
-    this.gameData = {
-        hp: config.PLAYER_MAX_HP,
-        first: false,
-        currentCardTemplateID: '',
-        cardList: [],
-        setToEnd: function() {
-            this.first = false;
-            this.currentCardTemplateID = '';
-        },
-        reset: function() {
-            this.hp = config.Settings.PLAYER_INIT_HP;
-            this.first = false;
-            this.currentCardTemplateID = '';
-            this.cardList = [];
-            config.PlayerCardDefineList.forEach((cardDefine) => {
-                let templateID = cardDefine[0];
-                let count = cardDefine[1];
-                for (let i=0; i<count; ++i) {
-                    this.cardList.push(templateID);
-                }
-            });
-        },
-        cloneAsOpp: function() {
-            var clone = common.util.clone(this);
-            clone.cardList = clone.cardList.map(() => {
-                return 'UK';
-            })
-            return clone;
-        }
-    }    
     this._setup();    
 }
 
-util.inherits(PlayerSession, base.EventEmitterWithTimer);
-
-PlayerSession.prototype.getSyncDataInRoom = function() {
-    return {
-        id: this.userID,
-        name: this.name,
-        data: this.roomData
-    }
-};
-
-PlayerSession.prototype.getSyncDataInGame = function() {
-    return {
-        id: this.userID,
-        name: this.name,
-        data: this.gameData
-    }
-};
-
-PlayerSession.prototype.syncSelfGameData = function() {
-    this.socket.emit(OpCodes.PLAYER_GAME_DATA, JSON.stringify(this.gameData));
-};
+util.inherits(PlayerSession, BaseSession);
 
 PlayerSession.prototype._joinRoom = function(room) {
     if (this.room) {
@@ -95,12 +32,6 @@ PlayerSession.prototype._joinRoom = function(room) {
             this.changeState(PlayerState.STATE_ROOM);
         }
     });
-};
-
-PlayerSession.prototype.onRoomData = function() {
-    if (this._checkIfOpAllowed(OpCodes.ROOM_DATA, PlayerState.STATE_ROOM)) {
-        this.socket.emit(OpCodes.ROOM_DATA, true, this.room.getSyncData());
-    }
 };
 
 PlayerSession.prototype._leaveRoom = function() {
@@ -131,6 +62,37 @@ PlayerSession.prototype._checkIfOpAllowed = function(opcode, states) {
     return allowed;
 };
 
+//< interfaces for config.js
+PlayerSession.prototype.onTakeDamage = function(damage, emitDelay) {
+    if (0 < emitDelay) {
+        this.setTimeout('take_damage', () => {
+            this.game.emitInGame(OpCodes.PLAYER_TAKE_DAMAGE, this.userID, damage, this.gameData.hp);
+        }, emitDelay);
+    } 
+    else {
+        this.game.emitInGame(OpCodes.PLAYER_TAKE_DAMAGE, this.userID, damage, this.gameData.hp);        
+    }
+};
+
+PlayerSession.prototype.heal = function(heal, emitDelay) {
+    if (0 < emitDelay) {
+        this.setTimeout('heal', () => {
+            this.game.emitInGame(OpCodes.PLAYER_HEAL, this.userID, heal, this.gameData.hp);        
+        }, emitDelay);
+    }
+    else {
+        this.game.emitInGame(OpCodes.PLAYER_HEAL, this.userID, heal, this.gameData.hp);        
+    }
+}
+//>
+
+//< interfaces for game.js
+PlayerSession.prototype.send = function() {
+    this.socket.emit.apply(this.socket, arguments);
+}
+//>
+
+//< network event listeners
 PlayerSession.prototype.onCreateRoom = function() {
     if (this._checkIfOpAllowed(OpCodes.CREATE_ROOM, PlayerState.STATE_IDLE)) {
         var room = RoomManager.instance.getAnIdleRoom();
@@ -157,6 +119,12 @@ PlayerSession.prototype.onQuickMatch = function() {
     }
 };
 
+PlayerSession.prototype.onRoomData = function() {
+    if (this._checkIfOpAllowed(OpCodes.ROOM_DATA, PlayerState.STATE_ROOM)) {
+        this.socket.emit(OpCodes.ROOM_DATA, true, this.room.getSyncData());
+    }
+};
+
 PlayerSession.prototype.onJoinRoom = function(roomID) {
     if (this._checkIfOpAllowed(OpCodes.JOIN_ROOM, [PlayerState.STATE_IDLE, PlayerState.STATE_ROOM])) {
         if (roomID) { 
@@ -174,93 +142,16 @@ PlayerSession.prototype.onJoinRoom = function(roomID) {
 
 PlayerSession.prototype.onLeaveRoom = function() {
     if (this._checkIfOpAllowed(OpCodes.LEAVE_ROOM, PlayerState.STATE_ROOM)) {
-        this._leaveRoom();    
+        this._leaveRoom();
     }
 };
 
 PlayerSession.prototype.onPlayerChangeReady = function(ready) {
     if (this._checkIfOpAllowed(OpCodes.PLAYER_CHANGE_READY, PlayerState.STATE_ROOM)) {
-        var oldReady = this.roomData.ready;
-        this.roomData.ready = ready;
-        this.socket.emit(OpCodes.PLAYER_CHANGE_READY, true, this.roomData.ready);         
-        if (oldReady !== this.roomData.ready) {
-            this.emit('ready changed', this);
-        }
+        this.setReady(ready, false, () => {
+            this.socket.emit(OpCodes.PLAYER_CHANGE_READY, true, this.roomData.ready);            
+        });
     }
-};
-
-PlayerSession.prototype.changeState = function(state) {
-    if (state != this.state) {
-        this.clearAllTimeouts();
-        this.state = state;
-        switch (this.state) {
-            case PlayerState.STATE_ROOM:
-                this.roomData.ready = false;
-                break;
-            case PlayerState.STATE_DISCONNECTED: 
-                this.clearAllTimeouts();                
-                g.logger.info('u[%d] session disconnected', this.userID);
-                this.socket.disconnect(true);
-                this.socket = null;
-                this.emit('disconnect', this);                    
-                this.sessionManager.removeSession(this);
-                break;
-            default:
-                break;
-        }
-    }
-};
-
-//< player interface used in config.js
-PlayerSession.prototype.setFirst = function(first) {
-    this.gameData.first = first;
-};
-
-PlayerSession.prototype.takeDamage = function(damage, emitDelay) {
-    if (damage > 0) {
-        this.gameData.hp -= damage;
-        if (this.gameData.hp < 0) {
-            this.gameData.hp = 0;
-        }
-    }
-    g.logger.debug('u[%d] take damage: %d, hp: %d', this.userID, damage, this.gameData.hp);
-    if (0 < emitDelay) {
-        this.setTimeout('take_damage', () => {
-            this.game.emitInGame(OpCodes.PLAYER_TAKE_DAMAGE, this.userID, damage, this.gameData.hp);
-        }, emitDelay);
-    } 
-    else {
-        this.game.emitInGame(OpCodes.PLAYER_TAKE_DAMAGE, this.userID, damage, this.gameData.hp);        
-    }
-    return this.gameData.hp > 0;
-};
-
-PlayerSession.prototype.heal = function(heal, emitDelay) {
-    if (heal > 0) {
-        this.gameData.hp += heal;
-    }
-    g.logger.debug('u[%d] heal: %d, hp: %d', this.userID, heal, this.gameData.hp);
-    if (0 < emitDelay) {
-        this.setTimeout('heal', () => {
-            this.game.emitInGame(OpCodes.PLAYER_HEAL, this.userID, heal, this.gameData.hp);        
-        }, emitDelay);
-    }
-    else {
-        this.game.emitInGame(OpCodes.PLAYER_HEAL, this.userID, heal, this.gameData.hp);        
-    }
-};
-
-PlayerSession.prototype.getCurrentCard = function() {
-    return CardTemplateManager.instance.getCardTemplate(this.gameData.currentCardTemplateID);
-};
-//>
-
-//< game
-PlayerSession.prototype._pickCard = function(cardIndex) {
-    this.gameData.currentCardTemplateID = this.gameData.cardList[cardIndex];
-    this.gameData.cardList.splice(cardIndex, 1);
-    this.socket.emit(OpCodes.PLAYER_PICK_CARD, true, cardIndex, this.gameData.currentCardTemplateID);
-    this.emit('pick card', this.gameData.currentCardTemplateID);
 };
 
 PlayerSession.prototype.onPlayerPickCard = function(cardIndex) {
@@ -270,39 +161,73 @@ PlayerSession.prototype.onPlayerPickCard = function(cardIndex) {
             this.socket.emit(OpCodes.PLAYER_PICK_CARD, false, 'Card already picked');
         }
         else {
-            this._pickCard(cardIndex);
+            this.pickCard(cardIndex);
         }
     }
 };
 
-PlayerSession.prototype.startTurn = function(pickCardCallback) {
-    this.gameData.currentCardTemplateID = '';
+PlayerSession.prototype.onChallengeAI = function() {
+    if (this._checkIfOpAllowed(OpCodes.CHALLENGE_AI, PlayerState.STATE_IDLE)) {
+        var room = RoomManager.instance.getAnIdleRoom();
+        if (room) {
+            let aiSession = new AISession(-room.id);
+            room.addSession(aiSession);            
+            this._joinRoom(room);
+            this.socket.emit(OpCodes.CHALLENGE_AI, true);
+        }
+        else {
+            this.socket.emit(OpCodes.CHALLENGE_AI, false, 'Failed to create AI room');
+        }
+    }
+};
+//>
+//< sub class interfaces
+PlayerSession.prototype.getName = function() {
+    return 'Player' + this.userID;
+};
+
+PlayerSession.prototype.onEnterState = function() {
+    switch (this.state) {
+        case PlayerState.STATE_DISCONNECTED:
+            g.logger.info('u[%d] session disconnected', this.userID);
+            this.socket = null;
+            this.emit('disconnect', this);                    
+            this.sessionManager.removeSession(this);
+            break;
+        default:
+            break;            
+    }
+};
+
+PlayerSession.prototype.onPickCard = function(cardIndex) {
+    this.socket.emit(OpCodes.PLAYER_PICK_CARD, true, cardIndex, this.gameData.currentCardTemplateID);
+};
+
+PlayerSession.prototype.onStartTurn = function() {
     this.setTimeout('player_pick_card', () => {
-            this._pickCard(Math.floor(Math.random() * this.gameData.cardList.length));
+            this.pickCard(Math.floor(Math.random() * this.gameData.cardList.length));
         }, config.Settings.PLAYER_PICK_CARD_TIMEOUT
     );
-    this.socket.emit(OpCodes.PLAYER_TURN);  
+    this.socket.emit(OpCodes.PLAYER_TURN);
 };
 //>
 
-PlayerSession.prototype._setup = function() {
-    this.socket.on('disconnect', () => {
-        this.changeState(PlayerState.STATE_DISCONNECTED);
-    });
 
+PlayerSession.prototype._setup = function() {
     [
+        ['disconnect',  function() { this.changeState(PlayerState.STATE_DISCONNECTED); }],
         [OpCodes.CREATE_ROOM, this.onCreateRoom],
         [OpCodes.QUICK_MATCH, this.onQuickMatch],     
         [OpCodes.JOIN_ROOM, this.onJoinRoom],
         [OpCodes.LEAVE_ROOM, this.onLeaveRoom],
         [OpCodes.ROOM_DATA, this.onRoomData],            
         [OpCodes.PLAYER_CHANGE_READY, this.onPlayerChangeReady],
-        [OpCodes.PLAYER_PICK_CARD, this.onPlayerPickCard]
+        [OpCodes.PLAYER_PICK_CARD, this.onPlayerPickCard],
+        [OpCodes.CHALLENGE_AI, this.onChallengeAI],
     ].forEach((el) => {
         this.socket.on(el[0], el[1].bind(this));
     });
 };
-
 
 function PlayerSessionManager() {
     PlayerSessionManager.instance = this;
@@ -315,7 +240,7 @@ function PlayerSessionManager() {
             callback.call(null, false, 'Login failure, only one session allowed');
         }
         else {
-            session = new PlayerSession(this, userID, socket);
+            session = new PlayerSession(userID, this, socket);
             this.sessionList.push(session);
             callback.call(null, true, session);
         }
@@ -340,6 +265,5 @@ PlayerSessionManager.prototype.findSession = function(userID) {
 new PlayerSessionManager();
 
 module.exports = {
-    PlayerSession: PlayerSession,
     PlayerSessionManager: PlayerSessionManager
 }
