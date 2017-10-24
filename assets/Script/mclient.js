@@ -166,14 +166,11 @@
             if (result) {
                 this.userID = userIdOrMsg;
                 window.localStorage.setItem('cd_user_id', userIdOrMsg);
-                // deal with server restart when we're in game scene
-                if (playerState === PlayerState.STATE_IDLE) {
-                    cc.director.loadScene('EntryScene');
-                }
-                else if (playerState === PlayerState.STATE_ROOM) {
-                    cc.director.loadScene('GameScene');
-                }
             }
+        });
+        this.socket.on('disconnect', () => {
+            console.log('disconnected');
+            cc.director.loadScene('EntryScene');
         });
     }
 
