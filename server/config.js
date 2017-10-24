@@ -41,6 +41,7 @@ var Settings = {
     GAME_START_COUNTDOWN:                   3, // seconds 
     GAME_NEXT_ROUND_DELAY:                  2 * 1000, // ms
     GAME_END_DELAY:                         2 * 1000, // ms
+    AI_PICK_CARD_DELAY:                     1 * 1000, // ms
 };
 
 var CardVersus = function(firstPlayer, secondPlayer) {
@@ -124,17 +125,14 @@ var CardVersus = function(firstPlayer, secondPlayer) {
                         loserPlayer.setFirst(false);
                         winnerPlayer.setFirst(true);
                     }
-                    if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
-                        actionDelay += actionDuration;                        
-                        firstPlayer.takeDamage(secondCard.value, actionDelay);
-                    }
                     break;
                 case CardType.TYPE_DEFENCE: {
-                    let damage = firstCard.value - secondCard.value;
-                    secondPlayer.takeDamage(damage, actionDelay);                    
-                    if (damage <= 0) {
+                    if (firstCard.value > secondCard) {
+                        secondPlayer.takeDamage(firstCard, actionDelay);                                            
+                    }
+                    else {
                         firstPlayer.setFirst(false);
-                        secondPlayer.setFirst(true);
+                        secondPlayer.setFirst(true);                        
                     }
                     break;
                 }
@@ -155,9 +153,8 @@ var CardVersus = function(firstPlayer, secondPlayer) {
                     }
                     break;
                 case CardType.TYPE_ATTACK: {
-                    let damage = secondCard.value - firstCard.value;
-                    firstPlayer.takeDamage(damage, actionDelay);                    
-                    if (0 < damage) {
+                    if (secondCard.value > firstCard.value) {
+                        firstPlayer.takeDamage(secondCard.value);
                         firstPlayer.setFirst(false);
                         secondPlayer.setFirst(true);
                     }
