@@ -1371,7 +1371,8 @@
     "node": {
       "__id__": 40
     },
-    "_enabled": true
+    "_enabled": true,
+    "winChanceLabel": null
   },
   {
     "__type__": "cc.PrefabInfo",

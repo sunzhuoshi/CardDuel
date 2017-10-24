@@ -10,11 +10,18 @@ if ('function' === typeof require) {
 }
 else {
     var CardTemplateIdToObject = function(id) {
-        return {
-            id: id,
-            type: CardTemplateDefineList[id][1],
-            value: CardTemplateDefineList[id][2]
+        var ret = null;
+        var el = CardTemplateDefineList.find((el) => {
+            return el[0] === id;
+        });
+        if (el) {
+            ret = {
+                id: id,
+                type: el[1],
+                value: el[2]
+            }
         }
+        return ret;
     }
 }
 

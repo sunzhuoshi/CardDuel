@@ -13,7 +13,8 @@ g.io = io;
 var userIDSequence = 1;
 
 var UriMap = {
-	'/config.js': '/config.js'
+	'/config.js': '/config.js',
+	'/ai.js': '/ai.js',
 };
 
 app.use('/static', express.static(__dirname + '/static'));

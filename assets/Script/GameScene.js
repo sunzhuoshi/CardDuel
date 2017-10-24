@@ -182,6 +182,30 @@ cc.Class({
 
     onGameDataNotification: function(gameData) {
         this._updateUIInGame(gameData);
+        this._generateWinChance(gameData);
+    },
+
+    _generateWinChance: function(gameData) {
+        if (client.AI) {
+            var selfPlayer = gameData.players.find((player) => {
+                return player.id === client.userID;
+            })
+            var oppPlayer = gameData.players.find((player) => {
+                return player.id !== client.userID;
+            })            
+            var options = AI.getOptions(
+                selfPlayer.data.hp, selfPlayer.data.cardList, selfPlayer.data.first,
+                oppPlayer.data.hp, oppPlayer.data.cardList, oppPlayer.data.first,
+                1000
+            ).sort((a, b) => {
+                return a.index > a.index;
+            });
+            var cardNodes = this.selfCardsPrefab.containerNode.children;
+            for (var i=0; i<cardNodes.length; ++i) {
+                var cardPrefab = cardNodes[i].getComponent('CardPrefab');
+                cardPrefab.showWinChance(options[i].win);
+            }            
+        }
     },
 
     onGameDataFirstNotification: function(gameFirstData) {

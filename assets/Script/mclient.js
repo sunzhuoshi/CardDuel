@@ -222,6 +222,20 @@
             }
         }
     }       
+
+    Client.prototype.loadScript = function(uri, callback) {
+        var el = document.createElement('script');
+        el.src = this.server + uri;
+        el.onload = callback;
+        document.head.appendChild(el);
+    }
+
+    Client.prototype.loadScripts = function(uriList, callback) {
+        uriList.forEach((uri) => {
+            this.loadScript(uri, callback);
+        })
+    }
+
     window.client = new Client();
     window.client.init();
 })();

@@ -72,6 +72,17 @@ cc.Class({
 
     onChallengeAIButtonClick: function() {
         this._emitPacket(OpCodes.CHALLENGE_AI);
+        client.loadScripts(['/config.js', '/ai.js'], () => {
+            if (!client._scriptLoadedCount) {
+                client._scriptLoadedCount = 1;
+            }
+            else {
+                client._scriptLoadedCount ++;
+            }
+            if (client._scriptLoadedCount == 2) {
+                client.AI = AI;
+            }
+        })
     },
 
     onCreateRoomResponse: function(result, roomIdOrMsg) {

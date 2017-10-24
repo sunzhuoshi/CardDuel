@@ -191,11 +191,12 @@ var CardVersus = function(firstPlayer, secondPlayer) {
     return actionDelay;
 };
 
-module.exports = {
-    CardType: CardType,
-    CardTemplateDefineList: CardTemplateDefineList,
-    PlayerCardDefineList: PlayerCardDefineList,
-    CardVersus: CardVersus,
-    Settings: Settings
-};
-
+if (typeof module !== 'undefined' && module.exports) {  
+    module.exports = {
+        CardType: CardType,
+        CardTemplateDefineList: CardTemplateDefineList,
+        PlayerCardDefineList: PlayerCardDefineList,
+        CardVersus: CardVersus,
+        Settings: Settings
+    };
+}

@@ -2,11 +2,19 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        
+        winChanceLabel: {
+            default: null,
+            type: cc.Label
+        },
     },
 
     ctor: function() {
         this._cardTemplateID = '';
+    },
+
+    showWinChance: function(winChance) {
+        this.winChanceLabel.node.active = true;
+        this.winChanceLabel.string = winChance;    
     },
 
     showBack: function() {
@@ -43,7 +51,6 @@ cc.Class({
     },
 
     // called every frame, uncomment this function to activate update callback
-    // update: function (dt) {
-
-    // },
+    update: function (dt) {
+    },
 });
