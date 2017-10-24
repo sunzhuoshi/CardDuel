@@ -54,31 +54,26 @@ cc.Class({
         this._super();
     },
 
-    onQuickMatchButtonClick: function() {
+    _emitPacket: function() {
         if (client.socket.connected) {
-            client.socket.emit(OpCodes.QUICK_MATCH);            
+            client.socket.emit.apply(client.socket, arguments);            
         }
         else {
             this.messagePrefab.showMessage('NOT CONNECTED', 1);
+            client.socket.connect();
         }
+    },
+
+    onQuickMatchButtonClick: function() {
+        this._emitPacket(OpCodes.QUICK_MATCH);
     },
 
     onHostGameButtonClick: function() {
-        if (client.socket.connected) {
-            client.socket.emit(OpCodes.CREATE_ROOM);            
-        }
-        else {
-            this.messagePrefab.showMessage('NOT CONNECTED', 1);
-        }
+        this._emitPacket(OpCodes.CREATE_ROOM);
     },
 
     onChallengeAIButtonClick: function() {
-        if (client.socket.connected) {
-            client.socket.emit(OpCodes.CHALLENGE_AI);            
-        }
-        else {
-            this.messagePrefab.showMessage('NOT CONNECTED', 1);
-        }
+        this._emitPacket(OpCodes.CHALLENGE_AI);
     },
 
     onCreateRoomResponse: function(result, roomIdOrMsg) {
