@@ -96,8 +96,4 @@ cc.Class({
             this.messagePrefab.showMessage(roomIdOrMsg, 2);
         }
     },
-
-    onVersusAIResponse: function(result) {
-
-    },
 });
