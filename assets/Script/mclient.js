@@ -217,7 +217,7 @@
             }
             else if (this._qrcode) {
                 this._qrcode.clear();
-                this._qrcode.makeCode(window.location.origin + '?cmd=join_room&rid=' + client.roomData.id);
+                this._qrcode.makeCode(window.location.origin + window.location.pathname + '?cmd=join_room&rid=' + client.roomData.id);
                 this._qrcodeDiv.style.display = 'block';                    
             }
         }
