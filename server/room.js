@@ -91,8 +91,15 @@ Room.prototype.addSession = function(session, callback) {
 
 Room.prototype.removeSession = function(session) {
     this._offSessionEvents(session);
+    // remove session specified
     this.sessions = this.sessions.filter((s) => {
-        return s !== session && !s.isRemovable();
+        return s !== session;
+    });
+    // remove AI session if any
+    this.sessions.forEach((s) => {
+        if (s.isRemovable()) {
+            s.leaveRoom(); // call leave room to remove and to clear timers
+        }
     });
     this._onSessionsChange();        
 };

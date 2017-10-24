@@ -15,24 +15,17 @@ function AISession(userID) {
 
 util.inherits(AISession, BaseSession);
 
-AISession.prototype._joinRoom = function(room) {
-    if (this.room) {
-        this._leaveRoom();            
-    }
-    room.addSession(this, (result, roomIdOrMsg) => {
-        g.logger.info('a[%d] join room[%d], result: %s, roomIdOrMsg: %s', this.userID, room.id, result, roomIdOrMsg);
+AISession.prototype.joinRoom = function(room) {
+    room.addSession(this, (result) => {
         if (result) {
             this.room = room;
-            this.changeState(PlayerState.STATE_ROOM);
         }
     });
 };
 
-AISession.prototype._leaveRoom = function() {
+AISession.prototype.leaveRoom = function() {
     if (this.room) {
-        var room = this.room;
-        g.logger.info('a[%d] leave room, roomID: %s', this.userID, room.id);            
-        room.removeSession(this);            
+        this.room.removeSession(this);            
         this.room = null;
         this.changeState(PlayerState.STATE_IDLE);
     }

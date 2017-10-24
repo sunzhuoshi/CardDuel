@@ -19,9 +19,9 @@ function PlayerSession(userID, sessionManager, socket) {
 
 util.inherits(PlayerSession, BaseSession);
 
-PlayerSession.prototype._joinRoom = function(room) {
+PlayerSession.prototype.joinRoom = function(room) {
     if (this.room) {
-        this._leaveRoom();            
+        this.leaveRoom();            
     }
     room.addSession(this, (result, roomIdOrMsg) => {
         this.socket.emit(OpCodes.JOIN_ROOM, result, roomIdOrMsg);
@@ -33,7 +33,7 @@ PlayerSession.prototype._joinRoom = function(room) {
     });
 };
 
-PlayerSession.prototype._leaveRoom = function() {
+PlayerSession.prototype.leaveRoom = function() {
     if (this.room) {
         var room = this.room;
         g.logger.info('u[%d] leave room, roomID: %s', this.userID, room.id);            
@@ -97,7 +97,7 @@ PlayerSession.prototype.onCreateRoom = function() {
         var room = RoomManager.instance.getAnIdleRoom();
         if (room) {
             this.socket.emit(OpCodes.CREATE_ROOM, true, room.id);
-            this._joinRoom(room);
+            this.joinRoom(room);
         }
         else {
             this.socket.emit(OpCodes.CREATE_ROOM, false, 'Failed to create room, server may be full');
@@ -109,7 +109,7 @@ PlayerSession.prototype.onQuickMatch = function() {
     if (this._checkIfOpAllowed(OpCodes.QUICK_MATCH, PlayerState.STATE_IDLE)) {
         var waitingRoom = RoomManager.instance.findAWaitingRoom();
         if (waitingRoom) {
-            this._joinRoom(waitingRoom);                    
+            this.joinRoom(waitingRoom);                    
         }
         else {
             this.socket.emit(OpCodes.QUICK_MATCH, false, 'No waiting opponent');
@@ -130,7 +130,7 @@ PlayerSession.prototype.onJoinRoom = function(roomID) {
             let room;                            
             room = RoomManager.instance.findRoom(roomID);
             if (room) {
-                this._joinRoom(room);
+                this.joinRoom(room);
             }
             else {
                 this.socket.emit(OpCodes.JOIN_ROOM, false, 'No such room');
@@ -141,7 +141,7 @@ PlayerSession.prototype.onJoinRoom = function(roomID) {
 
 PlayerSession.prototype.onLeaveRoom = function() {
     if (this._checkIfOpAllowed(OpCodes.LEAVE_ROOM, PlayerState.STATE_ROOM)) {
-        this._leaveRoom();
+        this.leaveRoom();
     }
 };
 
@@ -170,13 +170,8 @@ PlayerSession.prototype.onChallengeAI = function() {
         var room = RoomManager.instance.getAnIdleRoom();
         if (room) {
             let aiSession = new AISession(-room.id);
-            room.addSession(aiSession, (result) => {
-                if (result) {
-                    aiSession.room = room;
-                    this.changeState(PlayerState.STATE_ROOM);                    
-                }
-            });            
-            this._joinRoom(room);
+            aiSession.joinRoom(room);
+            this.joinRoom(room);
             this.socket.emit(OpCodes.CHALLENGE_AI, true);
         }
         else {
