@@ -61,7 +61,14 @@ function clone(obj) {
 	}
     var copy = obj.constructor();
     for (var attr in obj) {
-        if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+        if (obj.hasOwnProperty(attr)) {
+			if (obj[attr] instanceof Array) {
+				copy[attr] = obj[attr].slice();
+			}
+			else {
+				copy[attr] = obj[attr]				
+			}
+		};
     }
     return copy;
 }
