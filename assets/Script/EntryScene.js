@@ -44,9 +44,6 @@ cc.Class({
             if (client.socket.connected) {
                 client.processloginCmd();
             }
-            else {
-                this.messagePrefab.showMessage('NOT CONNECTED', 1);
-            }
         });    
     },
 
@@ -55,6 +52,7 @@ cc.Class({
     },
 
     _emitPacket: function() {
+        client.clearLoginCmd();
         if (client.socket.connected) {
             client.socket.emit.apply(client.socket, arguments);            
         }

@@ -156,6 +156,12 @@
                 break;
         }
     },
+
+    Client.prototype.clearLoginCmd = function() {
+        this.loginCmd = '';
+        this.loginRoomID = 0;
+        this.loginUserID = 0;
+    },
         
     Client.prototype._login = function() {
         if (!this.userID) {
@@ -166,6 +172,7 @@
             if (result) {
                 this.userID = userIdOrMsg;
                 window.localStorage.setItem('cd_user_id', userIdOrMsg);
+                this.processloginCmd();                    
             }
         });
         this.socket.on('disconnect', () => {
