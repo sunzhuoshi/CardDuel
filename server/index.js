@@ -13,8 +13,7 @@ g.io = io;
 var userIDSequence = 1;
 
 var UriMap = {
-	'/': '/index.html',
-	'/common.js': '/common.js'
+	'/config.js': '/config.js'
 };
 
 app.use('/static', express.static(__dirname + '/static'));
@@ -53,7 +52,7 @@ io.on('connection', function(socket) {
 		});
 	});
 	socket.on(OpCodes.LOGIN, function(userID) {
-		if (!userID || PlayerSessionManager.instance.findSession(userID)) {
+		if (!userID || userID > userIDSequence || PlayerSessionManager.instance.findSession(userID)) {
 			userID = ++userIDSequence;
 			g.logger.info('generated user id: %d', userID);
 		}
