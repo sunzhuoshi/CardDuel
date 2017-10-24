@@ -10,12 +10,12 @@ var CardType = {
 };
 
 var CardTemplateDefineList = [
-    ['AT1', CardType.TYPE_ATTACK, 		    1],
     ['AT2', CardType.TYPE_ATTACK, 		    2],
+    ['AT3', CardType.TYPE_ATTACK, 		    3],    
+    ['AT4', CardType.TYPE_ATTACK, 		    4],        
     ['AT5', CardType.TYPE_ATTACK, 		    5],
-    ['DF1', CardType.TYPE_DEFENCE,		    1],
-    ['DF2', CardType.TYPE_DEFENCE,   	    2],
-    ['DF5', CardType.TYPE_DEFENCE,   	    5],
+    ['DF3', CardType.TYPE_DEFENCE,		    3],
+    ['DF4', CardType.TYPE_DEFENCE,   	    4],
     ['DG', 	CardType.TYPE_DODGE,    	    0],
     ['VD1',	CardType.TYPE_VOID_DEFENCE,     1],
     ['LS1', CardType.TYPE_LIFE_STEAL, 		1],
@@ -23,12 +23,12 @@ var CardTemplateDefineList = [
 ];
 
 var PlayerCardDefineList = [
-    ['AT1', 1],
-    ['AT2', 1],
+    ['AT2', 2],
+    ['AT3', 1],
+    ['AT4', 1],        
     ['AT5', 1],
-    ['DF1', 1],
-    ['DF2', 1],
-    ['DF5', 1],
+    ['DF3', 1],
+    ['DF4', 1],
     ['DG',  1],
     ['VD1', 1],
     ['LS1', 1]    
@@ -104,13 +104,26 @@ var CardVersus = function(firstPlayer, secondPlayer) {
         case CardType.TYPE_ATTACK:
             switch (secondCard.type) {
                 case CardType.TYPE_LIFE_STEAL:
-                    if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
+                    secondPlayer.heal(secondCard.value, actionDelay);        
+                    if (firstPlayer.takeDamage(secondCard.value, actionDelay)) {
                         actionDelay += actionDuration;
-                        firstPlayer.takeDamage(secondCard.value, actionDelay);
-                        secondPlayer.heal(secondCard.value, actionDelay);
+                        secondPlayer.takeDamage(firstCard.value, actionDelay)                        
                     }
                     break;
                 case CardType.TYPE_ATTACK:
+                    {
+                        let winnerPlayer = firstPlayer;
+                        let winnerCard = firstCard;
+                        let loserPlayer = secondPlayer;
+                        if (secondCard.value > firstCard.value) {
+                            winnerPlayer = secondPlayer;
+                            winnerCard = secondCard;
+                            loserPlayer  = firstPlayer;
+                        }
+                        loserPlayer.takeDamage(winnerCard.value, actionDelay);
+                        loserPlayer.setFirst(false);
+                        winnerPlayer.setFirst(true);
+                    }
                     if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
                         actionDelay += actionDuration;                        
                         firstPlayer.takeDamage(secondCard.value, actionDelay);
@@ -126,10 +139,7 @@ var CardVersus = function(firstPlayer, secondPlayer) {
                     break;
                 }
                 case CardType.TYPE_VOID_DEFENCE:
-                    if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
-                        actionDelay += actionDuration;                        
-                        firstPlayer.takeDamage(secondCard.value, actionDelay);
-                    }					
+                    secondPlayer.takeDamage(firstCard.value, actionDelay);
                     break;
                 default:
                     break;
@@ -147,13 +157,15 @@ var CardVersus = function(firstPlayer, secondPlayer) {
                 case CardType.TYPE_ATTACK: {
                     let damage = secondCard.value - firstCard.value;
                     firstPlayer.takeDamage(damage, actionDelay);                    
-                    if (damage) {
+                    if (0 < damage) {
                         firstPlayer.setFirst(false);
                         secondPlayer.setFirst(true);
                     }
                     break;
                 }
                 case CardType.TYPE_DEFENCE:
+                    firstPlayer.setFirst(false);
+                    secondPlayer.setFirst(false);
                     break;
                 case CardType.TYPE_VOID_DEFENCE:
                     firstPlayer.takeDamage(secondCard.value, actionDelay);
@@ -167,26 +179,22 @@ var CardVersus = function(firstPlayer, secondPlayer) {
         case CardType.TYPE_VOID_DEFENCE:
             switch (secondCard.type) {
                 case CardType.TYPE_LIFE_STEAL:
-                    if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
-                        actionDelay += actionDuration;                        
-                        firstPlayer.takeDamage(secondCard.value, actionDelay);
-                        secondPlayer.heal(secondCard.value, actionDelay);
+                    secondPlayer.heal(secondCard.value, actionDelay);        
+                    if (firstPlayer.takeDamage(secondCard.value, actionDelay)) {
+                        actionDelay += actionDuration;
+                        secondPlayer.takeDamage(firstCard.value, actionDelay)                        
                     }
                     break;
                 case CardType.TYPE_ATTACK:
-                    if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
-                        actionDelay += actionDuration;                        
-                        firstPlayer.takeDamage(secondCard.value, actionDelay);
-                    }
+                    firstPlayer.takeDamage(secondCard.value, actionDelay);
+                    firstPlayer.setFirst(false);
+                    secondPlayer.setFirst(true);
                     break;
                 case CardType.TYPE_DEFENCE:
                     secondPlayer.takeDamage(firstCard.value);
                     break;
                 case CardType.TYPE_VOID_DEFENCE:
-                    if (secondPlayer.takeDamage(firstCard.value, actionDelay)) {
-                        actionDelay += actionDuration;                        
-                        firstPlayer.takeDamage(secondCard.value, actionDelay);
-                    }					
+                    secondPlayer.takeDamage(firstCard.value, actionDelay);                
                     break;
                 default:
                     break;
