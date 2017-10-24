@@ -1,5 +1,3 @@
-var g = require('./global.js');
-
 var CardType = {
     TYPE_ATTACK:        'Attack',
     TYPE_DEFENCE:       'Defence',
@@ -50,13 +48,6 @@ var CardVersus = function(firstPlayer, secondPlayer) {
 
     var actionDelay = 0;
     var actionDuration = 1000;
-
-    g.logger.debug('u[%d]%s vs. u[%d]%s', firstPlayer.userID, firstCard.id, secondPlayer.userID, secondCard.id);
-
-    if (!firstCard || !secondCard) {
-        g.logger.warn('void card, user1: %d, user2: %d', firstPlayer.userID, secondPlayer.userID);
-        return actionDelay;
-    }
 
     if (firstCard.type == CardType.TYPE_DOGUE || secondCard.type == CardType.TYPE_DOGUE) {
         firstPlayer.setFirst(false);

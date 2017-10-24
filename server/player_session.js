@@ -29,7 +29,6 @@ PlayerSession.prototype._joinRoom = function(room) {
         if (result) {
             this.socket.join(room.getChannelID());
             this.room = room;
-            this.changeState(PlayerState.STATE_ROOM);
         }
     });
 };
@@ -171,7 +170,12 @@ PlayerSession.prototype.onChallengeAI = function() {
         var room = RoomManager.instance.getAnIdleRoom();
         if (room) {
             let aiSession = new AISession(-room.id);
-            room.addSession(aiSession);            
+            room.addSession(aiSession, (result) => {
+                if (result) {
+                    aiSession.room = room;
+                    this.changeState(PlayerState.STATE_ROOM);                    
+                }
+            });            
             this._joinRoom(room);
             this.socket.emit(OpCodes.CHALLENGE_AI, true);
         }

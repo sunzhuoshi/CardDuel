@@ -107,6 +107,10 @@ Game.prototype._cardVersus = function() {
     })
     this.emitInGame(OpCodes.GAME_CARD_VERSUS, dataList);
 
+    g.logger.debug('u[%d]%s vs. u[%d]%s', 
+        this.firstSession.userID, this.firstSession.gameData.currentCardTemplateID, 
+        this.secondSession.userID, this.secondSession.gameData.currentCardTemplateID
+    );   
     var versusDelay = CardVersus(this.firstSession, this.secondSession);
 
     this.sessions.forEach((session) => {

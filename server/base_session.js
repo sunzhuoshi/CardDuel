@@ -46,9 +46,9 @@ function BaseSession(userID) {
         },
         cloneAsOpp: function() {
             var clone = common.util.clone(this);
-            clone.cardList = clone.cardList.map(() => {
-                return 'UK';
-            })
+            clone.cardList = clone.cardList.sort((a, b) => {
+                return a > b;
+            });
             return clone;
         }        
     }
@@ -103,6 +103,16 @@ BaseSession.prototype.changeState = function(state) {
         this._onEnterState();
         this.onEnterState();
     }
+}
+
+BaseSession.prototype.getOppSession = function() {
+    var ret = null;
+    if (this.room) {
+        ret = this.room.sessions.find((el) => {
+            return el !== this;
+        });
+    }
+    return ret;
 }
 
 //< interfaces for config.js
