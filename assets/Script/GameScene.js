@@ -206,7 +206,7 @@ cc.Class({
     },
 
     _generateWinChance: function(gameData) {
-        if (client.AI) {
+        if (client.AI && gameData) {
             var selfPlayer = gameData.players.find((player) => {
                 return player.id === client.userID;
             })

@@ -1,4 +1,4 @@
-if ('function' === typeof require) {
+if ('undefined' !== typeof module) {
     var config = require('./config.js');
     var card = require('./card.js');
     var CardVersus = config.CardVersus;
