@@ -49,7 +49,7 @@ var CardVersus = function(firstPlayer, secondPlayer) {
     var actionDelay = 0;
     var actionDuration = 1000;
 
-    if (firstCard.type == CardType.TYPE_DOGUE || secondCard.type == CardType.TYPE_DOGUE) {
+    if (firstCard.type == CardType.TYPE_DODGE || secondCard.type == CardType.TYPE_DODGE) {
         firstPlayer.setFirst(false);
         secondPlayer.setFirst(false);
         return actionDelay;
