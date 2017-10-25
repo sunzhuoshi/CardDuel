@@ -98,12 +98,7 @@ var AI = {
             playouts[i] = playout;
 
             for (var j=0; j<episodes; j++) {
-                var clonePlayout = [
-                    playout[0].clone(),
-                    playout[1].clone()
-                ];
-                var playoutResult = this._playEpisode(clonePlayout);
-                options[i][playoutResult] = options[i][playoutResult] + 1;
+                options[i][this.playEpisode(playout, true)] ++;
             }
         }
         options.forEach(function(el) {
@@ -155,21 +150,43 @@ var AI = {
         }
     },
     
-    _playEpisode: function(playout) {
-        while (!this._ifGameEnds(playout)) {
-            playout.forEach((player) => {
+    playEpisode: function(playout, ifClone) {
+        var workPlayout = playout;
+        if (ifClone) {
+            workPlayout = [
+                playout[0].clone(),
+                playout[1].clone()
+            ];
+        }
+        while (!this._ifGameEnds(workPlayout)) {
+            workPlayout.forEach((player) => {
                 if (0 === player.pickedCard.length) {
                     player.randomPickCard();
                 }
             });                
-            this._updateFirst(playout);
-            CardVersus(playout.firstPlayer, playout.secondPlayer);
-            playout.forEach((player) => {
+            this._updateFirst(workPlayout);
+            CardVersus(workPlayout.firstPlayer, workPlayout.secondPlayer);
+            workPlayout.forEach((player) => {
                 player.pickedCard = '';
             });              
         }
-        return this._getResult(playout);
+        return this._getResult(workPlayout);
     },
+
+    getRates: function(playout, episodes) {
+        var ret = {
+            'win': 0,
+            'lose': 0,
+            'draw': 0
+        };
+        for (var i=0; i<episodes; ++i) {
+            ret[this.playEpisode(playout, true)] ++;
+        }
+        for (var key in result) {
+            ret[key] = (result[key] / episodes).toFixed(2);
+        }
+        return ret;
+    }
 }
 
 if (typeof module !== 'undefined' && module.exports) {
