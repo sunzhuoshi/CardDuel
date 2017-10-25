@@ -135,7 +135,14 @@ BaseSession.prototype.takeDamage = function(damage, emitDelay) {
         }
     }
     g.logger.debug('u[%d] take damage: %d, hp: %d', this.userID, damage, this.gameData.hp);
-    this.onTakeDamage(damage, emitDelay);
+    if (0 < emitDelay) {
+        this.setTimeout('take_damage', () => {
+            this.game.emitInGame(OpCodes.PLAYER_TAKE_DAMAGE, this.userID, damage, this.gameData.hp);
+        }, emitDelay);
+    } 
+    else {
+        this.game.emitInGame(OpCodes.PLAYER_TAKE_DAMAGE, this.userID, damage, this.gameData.hp);        
+    }    
     return this.gameData.hp > 0;
 }
 
@@ -144,7 +151,14 @@ BaseSession.prototype.heal = function(heal, emitDelay) {
         this.gameData.hp += heal;
     }
     g.logger.debug('u[%d] heal: %d, hp: %d', this.userID, heal, this.gameData.hp);
-    this.onHeal(heal, emitDelay);
+    if (0 < emitDelay) {
+        this.setTimeout('heal', () => {
+            this.game.emitInGame(OpCodes.PLAYER_HEAL, this.userID, heal, this.gameData.hp);        
+        }, emitDelay);
+    }
+    else {
+        this.game.emitInGame(OpCodes.PLAYER_HEAL, this.userID, heal, this.gameData.hp);        
+    }    
 }
 
 BaseSession.prototype.getCurrentCard = function() {
@@ -184,12 +198,6 @@ BaseSession.prototype.onExitState = function() {
 }
 
 BaseSession.prototype.onPickCard = function(cardIndex) {
-}
-
-BaseSession.prototype.onTakeDamage = function(damage, emitDelay) {
-}
-
-BaseSession.prototype.onHeal = function(heal, emitDelay) {
 }
 
 BaseSession.prototype.onStartTurn = function() {

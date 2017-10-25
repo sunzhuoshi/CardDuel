@@ -157,28 +157,6 @@ PlayerSession.prototype.onChallengeAI = function() {
 };
 //>
 //< sub class interfaces
-PlayerSession.prototype.onTakeDamage = function(damage, emitDelay) {
-    if (0 < emitDelay) {
-        this.setTimeout('take_damage', () => {
-            this.game.emitInGame(OpCodes.PLAYER_TAKE_DAMAGE, this.userID, damage, this.gameData.hp);
-        }, emitDelay);
-    } 
-    else {
-        this.game.emitInGame(OpCodes.PLAYER_TAKE_DAMAGE, this.userID, damage, this.gameData.hp);        
-    }
-};
-
-PlayerSession.prototype.onHeal = function(heal, emitDelay) {
-    if (0 < emitDelay) {
-        this.setTimeout('heal', () => {
-            this.game.emitInGame(OpCodes.PLAYER_HEAL, this.userID, heal, this.gameData.hp);        
-        }, emitDelay);
-    }
-    else {
-        this.game.emitInGame(OpCodes.PLAYER_HEAL, this.userID, heal, this.gameData.hp);        
-    }
-}
-
 PlayerSession.prototype.getName = function() {
     return 'Player' + this.userID;
 };
