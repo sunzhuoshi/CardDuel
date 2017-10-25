@@ -28,6 +28,7 @@
         this.roomData = null;
         this.gameData = null;
 
+        this.appid = '0B146E5BA7D04CAF8A5D1179A96B912B';
         var origin = window.location.origin;
         var index = origin.indexOf(':', origin.indexOf(':') + 1);
         if (0 <= index) {
@@ -99,7 +100,7 @@
     }
     
     Client.prototype._initAnalysisSDK = function() {
-        this.loadScript('http://sdk.talkingdata.com/app/h5/v1?appid=card_duel&vn=' + this.version + '&vc=' + this.version);    
+        this.loadScript('http://sdk.talkingdata.com/app/h5/v1?appid=' + this.appid + '&vn=' + this.version + '&vc=' + this.version);    
     },
 
     Client.prototype.init = function() {
