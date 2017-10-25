@@ -98,11 +98,16 @@
         return ret;
     }
     
+    Client.prototype._initAnalysisSDK = function() {
+        this.loadScript('http://sdk.talkingdata.com/app/h5/v1?appid=card_duel&vn=' + this.version + '&vc=' + this.version);    
+    },
+
     Client.prototype.init = function() {
         var params = this._getQueryParams(window.location.search);
         this.loginCmd = params['cmd'];
         this.loginRoomID = this._parseIntParam(params['rid'], 0);
         this.loginUserID = this._parseIntParam(params['uid'], 0);
+        this._initAnalysisSDK();
     }
     
     Client.prototype.connect = function() {
@@ -225,7 +230,7 @@
 
     Client.prototype.loadScript = function(uri, callback) {
         var el = document.createElement('script');
-        el.src = this.server + uri;
+        el.src = uri;
         el.onload = callback;
         document.head.appendChild(el);
     }

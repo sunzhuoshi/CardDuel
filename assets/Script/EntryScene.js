@@ -72,7 +72,7 @@ cc.Class({
 
     onChallengeAIButtonClick: function() {
         this._emitPacket(OpCodes.CHALLENGE_AI);
-        client.loadScripts(['/config.js', '/ai.js'], () => {
+        client.loadScripts([(client.server + '/config.js'), (client.server + '/ai.js')], () => {
             if (!client._scriptLoadedCount) {
                 client._scriptLoadedCount = 1;
             }
