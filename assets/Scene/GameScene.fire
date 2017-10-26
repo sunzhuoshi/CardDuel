@@ -2171,7 +2171,8 @@
     "node": {
       "__id__": 61
     },
-    "_enabled": true
+    "_enabled": true,
+    "winChanceLabel": null
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -3890,7 +3891,8 @@
     "node": {
       "__id__": 115
     },
-    "_enabled": true
+    "_enabled": true,
+    "winChanceLabel": null
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -5146,8 +5148,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 100,
-      "height": 100
+      "width": 480,
+      "height": 480
     },
     "_rotationX": 0,
     "_rotationY": 0,
@@ -5320,7 +5322,8 @@
     "node": {
       "__id__": 161
     },
-    "_enabled": true
+    "_enabled": true,
+    "winChanceLabel": null
   },
   {
     "__type__": "cc.PrefabInfo",
