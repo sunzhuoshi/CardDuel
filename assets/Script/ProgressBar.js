@@ -2,13 +2,17 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        backgroundNode: {
+            default: null,
+            type: cc.Node
+        }
     },
 
     ctor: function() {
         this._startTime = 0;
         this._countdown = 0;
         this._progressBar = 0;
-        this._lastWindowWidth = 0;
+        this._lastWidth = 0;
     },
 
     // use this for initialization
@@ -30,13 +34,19 @@ cc.Class({
         this._countdown = seconds;
     },
 
+    stop: function() {
+        this.node.active = false;
+        this._startTime = 0;
+        this._countdown = 0;
+    },
+
     // called every frame, uncomment this function to activate update callback
     update: function (dt) {
         if (this._progressBar.node.active && this._startTime && this._countdown) {
-            let windowWidth = cc.director.getWinSize().width;
+            let width = Math.min(cc.director.getWinSize().width, this.backgroundNode.width);
 
-            if (this._lastWindowWidth !== windowWidth) {
-                this.setWidth(windowWidth);
+            if (this._lastWidth !== width) {
+                this.setWidth(width);
             }
             var progress = (Math.floor((new Date().getTime() - this._startTime) / 1000) / this._countdown);
             if (progress > 1) {

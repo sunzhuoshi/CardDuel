@@ -239,7 +239,7 @@
       }
     ],
     "_tag": -1,
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 9
@@ -430,7 +430,10 @@
     "node": {
       "__id__": 5
     },
-    "_enabled": true
+    "_enabled": true,
+    "backgroundNode": {
+      "__id__": 3
+    }
   },
   {
     "__type__": "cc.PrefabInfo",

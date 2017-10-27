@@ -340,6 +340,7 @@ cc.Class({
     },
 
     onPickCard: function(event) {
+        this.pickCardTimerProcessBar.stop();
         client.socket.emit(OpCodes.PLAYER_PICK_CARD, event.detail);
     }
 });
