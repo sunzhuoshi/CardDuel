@@ -130,9 +130,10 @@ Room.prototype.onPlayerReadyChanged = function() {
 };
 
 Room.prototype.onExitState = function() {
-    this.clearTimeout('playing');    
+    this.clearAllTimeouts();
     switch (this.state) {
         case RoomState.STATE_PLAYING:
+        this._game.clearAllTimeouts();        
             this._game.end();
             break;
     }          
