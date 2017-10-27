@@ -183,7 +183,7 @@ PlayerSession.prototype.onStartTurn = function() {
             this.pickCard(Math.floor(Math.random() * this.gameData.cardList.length));
         }, config.Settings.PLAYER_PICK_CARD_TIMEOUT
     );
-    this.socket.emit(OpCodes.PLAYER_TURN);
+    this.socket.emit(OpCodes.PLAYER_TURN, config.Settings.PLAYER_PICK_CARD_TIMEOUT);
 };
 //>
 

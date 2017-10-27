@@ -28,7 +28,7 @@ cc.Class({
     // called every frame, uncomment this function to activate update callback    
     update: function(dt) {
         if (this._startTime) {
-            var seconds = this._countdown - Math.floor((new Date().getTime() - this._startTime) / 1000);
+            var seconds = this._countdown - 1 - Math.floor((new Date().getTime() - this._startTime) / 1000);
             if (seconds > 0) {
                 this.timerLabel.string = seconds;
             }

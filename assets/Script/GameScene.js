@@ -4,6 +4,7 @@ var RoundInfoPrefab = require('RoundInfoPrefab');
 var CardPrefab = require('CardPrefab');
 var CardsPrefab = require('CardsPrefab');
 var GameStartCountdownPrefab = require('GameStartCountdownPrefab');
+var ProgressBar = require('ProgressBar');
 
 var BaseScene = require('BaseScene');
 
@@ -71,9 +72,9 @@ cc.Class({
             type: CardPrefab
         },
 
-        gameResultLabel: {
+        pickCardTimerProcessBar: {
             default: null,
-            type: cc.Label
+            type: ProgressBar
         }
     },
 
@@ -180,8 +181,9 @@ cc.Class({
         this.oppPickedCardPrefab.node.active = false;
     },
 
-    onPlayerTurnNotification: function() {
+    onPlayerTurnNotification: function(pickCardTimeout) {
         this.selfCardsPrefab.locked = false;
+        this.pickCardTimerProcessBar.countdown(Math.floor(pickCardTimeout / 1000));
     },
 
     onPlayerPickCardResponse: function(result, cardIndex, cardTemplateID) {
