@@ -108,7 +108,6 @@
         this.loginCmd = params['cmd'];
         this.loginRoomID = this._parseIntParam(params['rid'], 0);
         this.loginUserID = this._parseIntParam(params['uid'], 0);
-        this._initAnalysisSDK();
     }
     
     Client.prototype.connect = function() {
@@ -144,6 +143,8 @@
             this.socket.on(OpCodes.GAME_DATA, function(data) {
                 self.gameData = data;
             });
+
+            this._initAnalysisSDK();            
         }
     }
 
