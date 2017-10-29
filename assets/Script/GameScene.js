@@ -220,7 +220,7 @@ cc.Class({
                 oppPlayer.data.hp, oppPlayer.data.cardList, oppPlayer.data.first,
                 1000
             ).sort((a, b) => {
-                return a.index > a.index;
+                return a.index > b.index;
             });
             var cardNodes = this.selfCardsPrefab.containerNode.children;
             for (var i=0; i<cardNodes.length; ++i) {
