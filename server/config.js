@@ -23,13 +23,13 @@ var CardTemplateDefineList = [
 var PlayerCardDefineList = [
     ['AT2', 2],
     ['AT3', 1],
-    ['AT4', 1],        
+    ['AT4', 1],
     ['AT5', 1],
     ['DF3', 1],
     ['DF4', 1],
     ['DG',  1],
     ['VD1', 1],
-    ['LS1', 1]    
+    ['LS1', 1]
 ];
 
 
@@ -118,8 +118,8 @@ var CardVersus = function(firstPlayer, secondPlayer) {
                     }
                     break;
                 case CardType.TYPE_DEFENCE: {
-                    if (firstCard.value > secondCard) {
-                        secondPlayer.takeDamage(firstCard, actionDelay);                                            
+                    if (firstCard.value > secondCard.value) {
+                        secondPlayer.takeDamage(firstCard.value, actionDelay);                                            
                     }
                     else {
                         firstPlayer.setFirst(false);
