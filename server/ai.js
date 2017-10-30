@@ -132,21 +132,19 @@ var AI = {
     },
 
     _updateFirst: function(playout) {
-        if (!playout.firstPlayer && !playout.secondPlayer) {
-            playout.firstPlayer = playout.find((player) => {
-                return player.first;
-            });
-            if (playout.firstPlayer) {
-                playout.secondPlayer = playout.find((player) => {
-                    return !player.first;
-                })
-            }
-            else {
-                let firstIndex = Math.random() > 0.5? 1: 0;
-                let secondIndex = (firstIndex + 1) % 2;
-                playtout.firstPlayer = playout[firstIndex].setFirst(true);
-                playout.secondPlayer = playout[secondIndex].setFirst(false);
-            }
+        playout.firstPlayer = playout.find((player) => {
+            return player.first;
+        });
+        if (playout.firstPlayer) {
+            playout.secondPlayer = playout.find((player) => {
+                return !player.first;
+            })
+        }
+        else {
+            let firstIndex = Math.random() > 0.5? 1: 0;
+            let secondIndex = (firstIndex + 1) % 2;
+            playout.firstPlayer = playout[firstIndex].setFirst(true);
+            playout.secondPlayer = playout[secondIndex].setFirst(false);
         }
     },
     
