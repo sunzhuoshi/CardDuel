@@ -1,9 +1,26 @@
+const SSL_KEY = '/etc/letsencrypt/archive/gifer.cn/privkey2.pem';
+const SSL_CERT = '/etc/letsencrypt/archive/gifer.cn/fullchain2.pem';
+const SSL_CA = '/etc/letsencrypt/archive/gifer.cn/chain2.pem';
+const isSSL = true;
+
 var g = require('./global.js');
 
 var express = require('express');
 var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var fs = require('fs');
+
+var server;
+if (isSSL) {
+	server = require('https').createServer({
+		key: fs.readFileSync(SSL_KEY),
+		cert: fs.readFileSync(SSL_CERT),
+		ca: fs.readFileSync(SSL_CA)
+	}, app);
+}
+else {
+	server = require('http').Server(app);	
+}
+var io = require('socket.io')(server);
 var common = require('./common.js');
 var OpCodes = common.OpCodes;
 var PlayerSessionManager = require('./player_session.js').PlayerSessionManager;
@@ -70,7 +87,7 @@ io.on('connection', function(socket) {
 	});
 });
 
-http.listen(8888, function() {
+server.listen(8888, function() {
 	g.logger.info('listening on *:8888');
 });
 

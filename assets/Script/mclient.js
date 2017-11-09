@@ -100,7 +100,7 @@
     }
     
     Client.prototype._initAnalysisSDK = function() {
-        this.loadScript('http://sdk.talkingdata.com/app/h5/v1?appid=' + this.appid + '&vn=' + this.version + '&vc=' + this.version);    
+        this.loadScript('https://jic.talkingdata.com/app/h5/v1?appid=' + this.appid + '&vn=' + this.version + '&vc=' + this.version);    
     },
 
     Client.prototype.init = function() {
